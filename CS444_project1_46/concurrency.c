@@ -18,6 +18,7 @@
 #define NUM_CONSUMERS 2
 #define TRUE 1
 #define DEBUG 0
+#define VERBOSE 0
 
 struct Data {
     int value;
@@ -160,7 +161,11 @@ void *producer() {
         // Block until a consumer removes an item
         if (num_items >= MAX_BUFFER_SIZE) {
             pthread_mutex_unlock(&mutex_p);
-            printf("Waiting for a consumer to remove an item...\n");
+
+            if(VERBOSE) {
+                printf("Waiting for a consumer to remove an item...\n");
+            }
+
             continue;
         }
 
@@ -192,7 +197,9 @@ void *consumer() {
     struct Data data;
 
     while(TRUE) {
-        printf("Consumer thread is working...\n");
+        if(VERBOSE) {
+            printf("Consumer thread is working...\n");
+        }
 
         if(pthread_mutex_lock(&mutex_c) != 0) {
             if(DEBUG) {
@@ -203,7 +210,10 @@ void *consumer() {
         // Block until a producer adds a new item
         if (num_items == 0) {
             pthread_mutex_unlock(&mutex_c);
-            printf("Waiting for a producer to add a new item...\n");
+
+            if(VERBOSE) {
+                printf("Waiting for a producer to add a new item...\n");
+            }
             continue;
         }
 
