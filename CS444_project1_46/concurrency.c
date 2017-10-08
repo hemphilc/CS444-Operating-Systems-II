@@ -11,7 +11,6 @@
 #include <pthread.h>
 #include <time.h>
 #include <unistd.h>
-#include <semaphore.h>
 #include "mt19937ar.c"
 
 #define MAX_BUFFER_SIZE 32
