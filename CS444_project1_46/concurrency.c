@@ -17,7 +17,7 @@
 #define NUM_PRODUCERS 2
 #define NUM_CONSUMERS 2
 #define TRUE 1
-#define DEBUG 1
+#define DEBUG 0
 #define VERBOSE 0
 
 struct Data {
@@ -177,6 +177,10 @@ void *producer() {
         buffer[num_items] = data;
         num_items++;
 
+        if(VERBOSE) {
+            printf("Item added. %d items in buffer\n", num_items);
+        }
+
         if(pthread_mutex_unlock(&mutex_p) != 0) {
             if(DEBUG) {
                 perror("Error unlocking producer mutex");
@@ -228,6 +232,10 @@ void *consumer() {
         data = buffer[num_items - 1];
         num_items--;
         sleep(data.wait_time);
+
+        if(VERBOSE) {
+            printf("Item removed. %d items in buffer\n", num_items);
+        }
 
         if(pthread_mutex_unlock(&mutex_c) != 0) {
             if(DEBUG) {
