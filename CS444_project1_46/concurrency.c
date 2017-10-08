@@ -28,8 +28,8 @@ struct Data {
 struct Data buffer[MAX_BUFFER_SIZE];
 int num_items;
 
-pthread_mutex_t mutex_c;
-pthread_mutex_t mutex_p;
+pthread_mutex_t mutex;
+//pthread_mutex_t mutex_c;
 
 int rdrand(int min, int max);
 void *producer();
@@ -42,20 +42,20 @@ int main(/*int argc, char **argv*/) {
     pthread_t consumer_threads[NUM_CONSUMERS];
 
     // Initialize the producer mutex
-    if(pthread_mutex_init(&mutex_p, 0) != 0) {
+    if(pthread_mutex_init(&mutex, 0) != 0) {
         if(DEBUG) {
             perror("Error initializing producer mutex");
             exit(1);
         }
     }
 
-    // Initialize the consumer mutex
-    if(pthread_mutex_init(&mutex_c, 0) != 0) {
-        if(DEBUG) {
-            perror("Error initializing consumer mutex");
-            exit(1);
-        }
-    }
+//    // Initialize the consumer mutex
+//    if(pthread_mutex_init(&mutex, 0) != 0) {
+//        if(DEBUG) {
+//            perror("Error initializing consumer mutex");
+//            exit(1);
+//        }
+//    }
 
     // Create the producer pthreads
     for(i = 0; i < NUM_PRODUCERS; i++) {
@@ -152,7 +152,7 @@ void *producer() {
         int sleep_time = rdrand(3, 7);
         sleep(sleep_time);
 
-        if(pthread_mutex_lock(&mutex_p) != 0) {
+        if(pthread_mutex_lock(&mutex) != 0) {
             if(DEBUG) {
                 perror("Error locking producer mutex");
             }
@@ -160,7 +160,7 @@ void *producer() {
 
         // Block until a consumer removes an item
         if (num_items >= MAX_BUFFER_SIZE) {
-            if(pthread_mutex_unlock(&mutex_p) != 0) {
+            if(pthread_mutex_unlock(&mutex) != 0) {
                 perror("Error unlocking producer mutex");
             }
 
@@ -181,7 +181,7 @@ void *producer() {
             printf("Item added. %d items in buffer\n", num_items);
         }
 
-        if(pthread_mutex_unlock(&mutex_p) != 0) {
+        if(pthread_mutex_unlock(&mutex) != 0) {
             if(DEBUG) {
                 perror("Error unlocking producer mutex");
             }
@@ -207,7 +207,7 @@ void *consumer() {
             printf("Consumer thread is working...\n");
         }
 
-        if(pthread_mutex_lock(&mutex_c) != 0) {
+        if(pthread_mutex_lock(&mutex) != 0) {
             if(DEBUG) {
                 perror("Error locking consumer mutex");
             }
@@ -215,7 +215,7 @@ void *consumer() {
 
         // Block until a producer adds a new item
         if (num_items == 0) {
-            if(pthread_mutex_unlock(&mutex_c) != 0) {
+            if(pthread_mutex_unlock(&mutex) != 0) {
                 if(DEBUG) {
                     perror("Error unlocking consumer mutex");
                 }
@@ -237,7 +237,7 @@ void *consumer() {
             printf("Item removed. %d items in buffer\n", num_items);
         }
 
-        if(pthread_mutex_unlock(&mutex_c) != 0) {
+        if(pthread_mutex_unlock(&mutex) != 0) {
             if(DEBUG) {
                 perror("Error unlocking consumer mutex");
             }
