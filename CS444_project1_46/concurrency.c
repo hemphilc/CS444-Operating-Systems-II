@@ -17,7 +17,7 @@
 #define NUM_PRODUCERS 2
 #define NUM_CONSUMERS 2
 #define TRUE 1
-#define DEBUG 0
+#define DEBUG 1
 #define VERBOSE 0
 
 struct Data {
@@ -77,25 +77,25 @@ int main(/*int argc, char **argv*/) {
         }
     }
 
-    // Join the producer pthreads
-    for(i = 0; i < NUM_PRODUCERS; i++) {
-        if(pthread_join(producer_threads[i], NULL) != 0) {
-            if(DEBUG) {
-                perror("Error joining producer pthread");
-                exit(1);
-            }
-        }
-    }
+//    // Join the producer pthreads
+//    for(i = 0; i < NUM_PRODUCERS; i++) {
+//        if(pthread_join(producer_threads[i], NULL) != 0) {
+//            if(DEBUG) {
+//                perror("Error joining producer pthread");
+//                exit(1);
+//            }
+//        }
+//    }
 
-    // Join the consumer pthreads
-    for(i = 0; i < NUM_CONSUMERS; i++) {
-        if(pthread_join(consumer_threads[i], NULL) != 0) {
-            if(DEBUG) {
-                perror("Error joining consumer pthread");
-                exit(1);
-            }
-        }
-    }
+//    // Join the consumer pthreads
+//    for(i = 0; i < NUM_CONSUMERS; i++) {
+//        if(pthread_join(consumer_threads[i], NULL) != 0) {
+//            if(DEBUG) {
+//                perror("Error joining consumer pthread");
+//                exit(1);
+//            }
+//        }
+//    }
 
     return 0;
 }
@@ -160,7 +160,9 @@ void *producer() {
 
         // Block until a consumer removes an item
         if (num_items >= MAX_BUFFER_SIZE) {
-            pthread_mutex_unlock(&mutex_p);
+            if(pthread_mutex_unlock(&mutex_p) != 0) {
+                perror("Error unlocking producer mutex");
+            }
 
             if(VERBOSE) {
                 printf("Waiting for a consumer to remove an item...\n");
@@ -209,7 +211,11 @@ void *consumer() {
 
         // Block until a producer adds a new item
         if (num_items == 0) {
-            pthread_mutex_unlock(&mutex_c);
+            if(pthread_mutex_unlock(&mutex_c) != 0) {
+                if(DEBUG) {
+                    perror("Error unlocking consumer mutex");
+                }
+            }
 
             if(VERBOSE) {
                 printf("Waiting for a producer to add a new item...\n");
