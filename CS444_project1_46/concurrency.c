@@ -175,7 +175,7 @@ void *producer() {
         data.value = rdrand(0, 100);
         data.wait_time = rdrand(2, 9);
         buffer[num_items] = data;
-        num_items++;
+        num_items = num_items + 1;
 
         if(VERBOSE) {
             printf("Item added. %d items in buffer\n", num_items);
@@ -230,7 +230,7 @@ void *consumer() {
 
         // Remove an item from the buffer and sleep
         data = buffer[num_items - 1];
-        num_items--;
+        num_items = num_items - 1;
         sleep(data.wait_time);
 
         if(VERBOSE) {
