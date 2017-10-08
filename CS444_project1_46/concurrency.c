@@ -218,7 +218,7 @@ void *consumer() {
         }
 
         // Remove an item from the buffer and sleep
-        data = buffer[num_items];
+        data = buffer[num_items - 1];
         num_items--;
         sleep(data.wait_time);
 
