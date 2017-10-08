@@ -29,7 +29,6 @@ struct Data buffer[MAX_BUFFER_SIZE];
 int num_items;
 
 pthread_mutex_t mutex;
-//pthread_mutex_t mutex_c;
 
 int rdrand(int min, int max);
 void *producer();
@@ -41,21 +40,13 @@ int main(/*int argc, char **argv*/) {
     pthread_t producer_threads[NUM_PRODUCERS];
     pthread_t consumer_threads[NUM_CONSUMERS];
 
-    // Initialize the producer mutex
+    // Initialize the mutex
     if(pthread_mutex_init(&mutex, 0) != 0) {
         if(DEBUG) {
-            perror("Error initializing producer mutex");
+            perror("Error initializing mutex");
             exit(1);
         }
     }
-
-//    // Initialize the consumer mutex
-//    if(pthread_mutex_init(&mutex, 0) != 0) {
-//        if(DEBUG) {
-//            perror("Error initializing consumer mutex");
-//            exit(1);
-//        }
-//    }
 
     // Create the producer pthreads
     for(i = 0; i < NUM_PRODUCERS; i++) {
@@ -187,7 +178,7 @@ void *producer() {
             }
         }
 
-        printf("Producer has produced #%d\n", data.value);
+        printf("Producer has produced #%d\n\n", data.value);
     }
 
     printf("Producer thread has ended...\n");
@@ -243,7 +234,7 @@ void *consumer() {
             }
         }
 
-        printf("Consumer has consumed #%d\n", data.value);
+        printf("Consumer has consumed #%d\n\n", data.value);
     }
 
     printf("Consumer thread has ended...\n");
