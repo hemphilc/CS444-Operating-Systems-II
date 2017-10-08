@@ -17,7 +17,7 @@
 #define NUM_PRODUCERS 2
 #define NUM_CONSUMERS 2
 #define TRUE 1
-#define DEBUG 1
+#define DEBUG 0
 
 struct Data {
     int value;
