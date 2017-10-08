@@ -18,7 +18,7 @@
 #define NUM_CONSUMERS 2
 #define TRUE 1
 #define DEBUG 0
-#define VERBOSE 0
+#define VERBOSE 1
 
 struct Data {
     int value;
@@ -156,7 +156,7 @@ void *producer() {
             }
 
             if(VERBOSE) {
-                printf("Waiting for a consumer to remove an item...\n");
+                printf("Waiting for a consumer to remove an item...\n\n");
             }
 
             continue;
@@ -195,7 +195,7 @@ void *consumer() {
 
     while(TRUE) {
         if(VERBOSE) {
-            printf("Consumer thread is working...\n");
+            printf("Consumer thread is working...\n\n");
         }
 
         if(pthread_mutex_lock(&mutex) != 0) {
@@ -213,7 +213,7 @@ void *consumer() {
             }
 
             if(VERBOSE) {
-                printf("Waiting for a producer to add a new item...\n");
+                printf("Waiting for a producer to add a new item...\n\n");
             }
 
             continue;
