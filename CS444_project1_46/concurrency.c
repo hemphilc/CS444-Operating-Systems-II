@@ -3,7 +3,7 @@
  * Corey Hemphill - hemphilc@oregonstate.edu
  * CS444 - Concurrency Problem 1
  * October 9, 2017
- * producer_consumer.c
+ * concurrency.c
 */
 
 #include <stdio.h>
@@ -15,26 +15,24 @@
 #include "mt19937ar.c"
 
 #define MAX_BUFFER_SIZE 32
-#define NUM_PRODUCERS 10
-#define NUM_CONSUMERS 10
+#define NUM_PRODUCERS 2
+#define NUM_CONSUMERS 2
+#define TRUE 1
 
 struct Data {
-    int number;
+    int value;
     int wait_time;
 };
 
 struct Data buffer[MAX_BUFFER_SIZE];
 int num_items;
 
-sem_t sem_c;
-sem_t sem_p;
-pthread_mutex_t mutLock;
-pthread_cond_t condition_producer;
-pthread_cond_t condition_consumer;
+pthread_mutex_t mutex_c;
+pthread_mutex_t mutex_p;
 
 int rdrand(int min, int max);
-void *producer(/*void *arg*/);
-void *consumer(void *arg);
+void *producer();
+void *consumer();
 
 int main(/*int argc, char **argv*/) {
     int i;
@@ -42,15 +40,13 @@ int main(/*int argc, char **argv*/) {
     pthread_t producer_threads[NUM_PRODUCERS];
     pthread_t consumer_threads[NUM_CONSUMERS];
 
-    if(sem_init(&sem_c, 0, 0) != 0) {
-        perror("Error initializing sem_min");
+    if(pthread_mutex_init(&mutex_c, 0) != 0) {
+        perror("Error initializing consumer mutex");
     }
 
-    if(sem_init(&sem_p, 0, MAX_BUFFER_SIZE) != 0) {
-        perror("Error initializing sem_max");
+    if(pthread_mutex_init(&mutex_p, 0) != 0) {
+        perror("Error initializing producer mutex");
     }
-
-    pthread_mutex_init(&mutLock, 0);
 
     for(i = 0; i < NUM_PRODUCERS; i++) {
         if(pthread_create(&producer_threads[i], NULL, (void*)producer, NULL) != 0) {
@@ -59,7 +55,7 @@ int main(/*int argc, char **argv*/) {
     }
 
     for(i = 0; i < NUM_CONSUMERS; i++) {
-        if(pthread_create(&consumer_threads[i], NULL, (void*)consumer, NULL)) {
+        if(pthread_create(&consumer_threads[i], NULL, (void*)consumer, NULL) != 0) {
             perror("Error creating consumer pthread");
         }
     }
@@ -77,9 +73,9 @@ int main(/*int argc, char **argv*/) {
  Reference: rdrand_test.c from Materials from Class by Dr. Kevin McGrath
 ***********************************************************************/
 /**
-  @brief Generates a pseudo-random integer value between a given range
-  @param min - the lower bound of the integer range
-  @param max - the upper bound of the integer range
+  @brief rdrand generates a pseudo-random integer value within a range
+  @param min - the lower bound of the acceptable range
+  @param max - the upper bound of the acceptable range
   @return a random integer value within the min and max range
 */
 int rdrand(int min, int max) {
@@ -112,64 +108,80 @@ int rdrand(int min, int max) {
 }
 
 /**
-  @brief
-  @param
-  @return
+  @brief Producer generates a Data item and adds to buffer
+  @return none
 */
-void *producer(/*void *arg*/) {
+void *producer() {
+    printf("Producer thread has begun...\n");
+
     struct Data data;
 
-    while (1) {
+    while(TRUE) {
         // Wait a random amount of time in between 3-7 secs
         int sleep_time = rdrand(3, 7);
         sleep(sleep_time);
 
-        pthread_mutex_lock(&mutLock);
+        if(pthread_mutex_lock(&mutex_p) != 0) {
+            perror("Error locking producer mutex");
+        }
 
-        if (num_items >= MAX_BUFFER_SIZE){
-            pthread_mutex_unlock(&mutLock);
+        // Block until a consumer removes an item
+        if (num_items >= MAX_BUFFER_SIZE) {
+            pthread_mutex_unlock(&mutex_p);
+            printf("Waiting for a consumer to remove an item...\n");
             continue;
         }
 
+        // Generate a Data item and add it to the buffer
+        data.value = rdrand(0, 100);
+        data.wait_time = rdrand(2, 9);
         buffer[num_items] = data;
-
         num_items++;
 
-        printf("Producer has produced # %d...\n", data.number);
+        if(pthread_mutex_unlock(&mutex_p) != 0) {
+            perror("Error unlocking producer mutex");
+        }
 
-        pthread_mutex_unlock(&mutLock);
+        printf("Producer has produced #%d...\n", data.value);
     }
 
     printf("Producer thread has ended...\n");
 }
 
 /**
-  @brief
-  @param
-  @return
+  @brief Consumer removes a Data item from buffer
+  @return none
 */
-void *consumer(void *arg) {
-    //struct Data data;
+void *consumer() {
+    printf("Consumer thread has begun...\n");
 
-    printf("Consumer Thread begins...\n");
+    struct Data data;
 
-    while (1) {
-        printf("Consumer Thread %d is working...\n", (int)arg);
+    while(TRUE) {
+        printf("Consumer thread is working...\n");
 
-        pthread_mutex_lock(&mutLock);
+        if(pthread_mutex_lock(&mutex_c) != 0) {
+            perror("Error locking consumer mutex");
+        }
 
+        // Block until a producer adds a new item
         if (num_items == 0) {
-            printf("Waiting for a producer...\n");
-            pthread_mutex_unlock(&mutLock);
+            pthread_mutex_unlock(&mutex_c);
+            printf("Waiting for a producer to add a new item...\n");
             continue;
         }
 
+        // Remove an item from the buffer and sleep
+        data = buffer[num_items];
         num_items--;
-        sleep(buffer[num_items].wait_time);
+        sleep(data.wait_time);
 
-        printf("Consumer %d found \n", (int)arg);
-        pthread_mutex_unlock(&mutLock);
+        if(pthread_mutex_unlock(&mutex_c) != 0) {
+            perror("Error unlocking consumer mutex");
+        }
+
+        printf("Consumer has consumed #%d\n", data.value);
     }
-    printf("Consumer Thread ends...\n");
-}
 
+    printf("Consumer thread has ended...\n");
+}
