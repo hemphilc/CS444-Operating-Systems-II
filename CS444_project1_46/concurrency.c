@@ -77,25 +77,25 @@ int main(/*int argc, char **argv*/) {
         }
     }
 
-//    // Join the producer pthreads
-//    for(i = 0; i < NUM_PRODUCERS; i++) {
-//        if(pthread_join(producer_threads[i], NULL) != 0) {
-//            if(DEBUG) {
-//                perror("Error joining producer pthread");
-//                exit(1);
-//            }
-//        }
-//    }
+    // Join the producer pthreads
+    for(i = 0; i < NUM_PRODUCERS; i++) {
+        if(pthread_join(producer_threads[i], NULL) != 0) {
+            if(DEBUG) {
+                perror("Error joining producer pthread");
+                exit(1);
+            }
+        }
+    }
 
-//    // Join the consumer pthreads
-//    for(i = 0; i < NUM_CONSUMERS; i++) {
-//        if(pthread_join(consumer_threads[i], NULL) != 0) {
-//            if(DEBUG) {
-//                perror("Error joining consumer pthread");
-//                exit(1);
-//            }
-//        }
-//    }
+    // Join the consumer pthreads
+    for(i = 0; i < NUM_CONSUMERS; i++) {
+        if(pthread_join(consumer_threads[i], NULL) != 0) {
+            if(DEBUG) {
+                perror("Error joining consumer pthread");
+                exit(1);
+            }
+        }
+    }
 
     return 0;
 }
