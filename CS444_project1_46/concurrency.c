@@ -18,6 +18,7 @@
 #define NUM_PRODUCERS 2
 #define NUM_CONSUMERS 2
 #define TRUE 1
+#define DEBUG 1
 
 struct Data {
     int value;
@@ -40,29 +41,59 @@ int main(/*int argc, char **argv*/) {
     pthread_t producer_threads[NUM_PRODUCERS];
     pthread_t consumer_threads[NUM_CONSUMERS];
 
-    if(pthread_mutex_init(&mutex_c, 0) != 0) {
-        perror("Error initializing consumer mutex");
-    }
-
+    // Initialize the producer mutex
     if(pthread_mutex_init(&mutex_p, 0) != 0) {
-        perror("Error initializing producer mutex");
+        if(DEBUG) {
+            perror("Error initializing producer mutex");
+            exit(1);
+        }
     }
 
+    // Initialize the consumer mutex
+    if(pthread_mutex_init(&mutex_c, 0) != 0) {
+        if(DEBUG) {
+            perror("Error initializing consumer mutex");
+            exit(1);
+        }
+    }
+
+    // Create the producer pthreads
     for(i = 0; i < NUM_PRODUCERS; i++) {
         if(pthread_create(&producer_threads[i], NULL, (void*)producer, NULL) != 0) {
-            perror("Error creating producer pthread");
+            if(DEBUG) {
+                perror("Error creating producer pthread");
+                exit(1);
+            }
         }
     }
 
+    // Create the consumer pthreads
     for(i = 0; i < NUM_CONSUMERS; i++) {
         if(pthread_create(&consumer_threads[i], NULL, (void*)consumer, NULL) != 0) {
-            perror("Error creating consumer pthread");
+            if(DEBUG) {
+                perror("Error creating consumer pthread");
+                exit(1);
+            }
         }
     }
 
+    // Join the producer pthreads
+    for(i = 0; i < NUM_PRODUCERS; i++) {
+        if(pthread_join(producer_threads[i], NULL) != 0) {
+            if(DEBUG) {
+                perror("Error joining producer pthread");
+                exit(1);
+            }
+        }
+    }
+
+    // Join the consumer pthreads
     for(i = 0; i < NUM_CONSUMERS; i++) {
         if(pthread_join(consumer_threads[i], NULL) != 0) {
-            perror("Error joining consumer pthread");
+            if(DEBUG) {
+                perror("Error joining consumer pthread");
+                exit(1);
+            }
         }
     }
 
@@ -122,7 +153,9 @@ void *producer() {
         sleep(sleep_time);
 
         if(pthread_mutex_lock(&mutex_p) != 0) {
-            perror("Error locking producer mutex");
+            if(DEBUG) {
+                perror("Error locking producer mutex");
+            }
         }
 
         // Block until a consumer removes an item
@@ -139,7 +172,9 @@ void *producer() {
         num_items++;
 
         if(pthread_mutex_unlock(&mutex_p) != 0) {
-            perror("Error unlocking producer mutex");
+            if(DEBUG) {
+                perror("Error unlocking producer mutex");
+            }
         }
 
         printf("Producer has produced #%d...\n", data.value);
@@ -161,7 +196,9 @@ void *consumer() {
         printf("Consumer thread is working...\n");
 
         if(pthread_mutex_lock(&mutex_c) != 0) {
-            perror("Error locking consumer mutex");
+            if(DEBUG) {
+                perror("Error locking consumer mutex");
+            }
         }
 
         // Block until a producer adds a new item
@@ -177,7 +214,9 @@ void *consumer() {
         sleep(data.wait_time);
 
         if(pthread_mutex_unlock(&mutex_c) != 0) {
-            perror("Error unlocking consumer mutex");
+            if(DEBUG) {
+                perror("Error unlocking consumer mutex");
+            }
         }
 
         printf("Consumer has consumed #%d\n", data.value);
