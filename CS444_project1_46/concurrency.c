@@ -183,7 +183,7 @@ void *producer() {
             }
         }
 
-        printf("Producer has produced #%d...\n", data.value);
+        printf("Producer has produced #%d\n", data.value);
     }
 
     printf("Producer thread has ended...\n");
@@ -220,6 +220,7 @@ void *consumer() {
             if(VERBOSE) {
                 printf("Waiting for a producer to add a new item...\n");
             }
+
             continue;
         }
 
