@@ -1,0 +1,14 @@
+ # Jason Ye - yeja@oregonstate.edu
+ # Corey Hemphill - hemphilc@oregonstate.edu
+ # CS444 - Project 1 README
+ # October 9, 2017
+ # README.txt
+
+To compile concurrency.c:
+
+        gcc -pthread -Wall -g concurrency.c -o concurrency
+
+To run concurrency:
+
+        ./concurrency
+        
