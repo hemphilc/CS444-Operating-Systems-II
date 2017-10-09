@@ -2,7 +2,7 @@
  # Corey Hemphill - hemphilc@oregonstate.edu
  # CS444 - Project 1 README
  # October 9, 2017
- # README.txt
+ # README
 
 To compile concurrency.c:
 
@@ -11,4 +11,3 @@ To compile concurrency.c:
 To run concurrency:
 
         ./concurrency
-        
