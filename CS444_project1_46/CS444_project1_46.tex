@@ -36,7 +36,7 @@
 \begin{titlepage}
     \pagenumbering{gobble}
     \begin{singlespace}
-    	\includegraphics[height=4cm]{coe_v_spot1}
+    	%\includegraphics[height=4cm]{coe_v_spot1}
         \hfill 
         % 4. If you have a logo, use this include graphics command to put it on the coversheet.
         %\includegraphics[height=4cm]{CompanyLogo}   
@@ -62,7 +62,8 @@
             \vspace{60pt}
         
         \begin{abstract}
-        % 6. Fill in your abstract     
+        % 6. Fill in your abstract 
+        This project report is a summary of Homework 1 for Operating System II at Oregon State University, Fall 2017. This document includes a list of commands used to complete necessary tasks, a list of Qemu command flags used, a summary of the producer-consumer concurrency problem implementation, a version control log for homework files, and a comprehensive team member work log/history.
         \end{abstract} 
         
     \end{singlespace}
@@ -81,6 +82,7 @@
 % list the command lines from beginning to execute in the terminal
 
 \begin{enumerate}
+
 \item cd \textless directory\textgreater
 \item vim \textless filename\textgreater
 \item git clone git://git.yoctoproject.org/linux-yocto-3.19
@@ -97,6 +99,7 @@
 \item cp \textless filename\textgreater \textless directory\textgreater
 \item gcc -pthread -Wall -g concurrency.c -o concurrency
 \item history
+
 \end{enumerate}
 
 \section{Qemu Flags}
@@ -127,13 +130,12 @@ Below is a list of each command flag used in the initialization command and its 
 % Write how to build kernel and run qemu on OS-Class... 
 \\
 
-
 \section{Concurrency Solution}
 
 \subsection{Solution Summary}
 
 \noindent
-We implemented a single C file, concurrency.c that consists of 3 key functions; a random number generator, a producer, and a consumer. The main function simply initializes the mutex, and creates the producer and consumer threads. The rdrand function generates a random value within a given range, and is used for generating the random wait times for the producer and consumer functions. The producer waits a random amount of time between 3 and 7 seconds, generates a data struct with a random value and a random wait time between 2 and 9, adds it to a global data buffer, and increments the buffer item count. While the producer performs its insert, it uses a mutex to take sole control of the data buffer. The consumer grabs the last value inserted into the data buffer, consumes it, decrements the buffer item count, and prints the data's value to the console. While the consumer performs its removal, it uses a mutex to take sole control of the data buffer. We hard-coded the program to use 2 producer and 2 consumer threads - 4 total so as not to go over the enforced server thread limit. 
+We implemented a single C file, concurrency.c, that consists of 3 key functions; a random number generator, a producer, and a consumer. The main function simply initializes the mutex, and creates the producer and consumer threads. The rdrand function generates a random value within a given range, and is used for generating the random wait times for the producer and consumer functions. The producer waits a random amount of time between 3 and 7 seconds, generates a data struct with a random value and a random wait time between 2 and 9, adds it to a global data buffer, and increments the buffer item count. While the producer performs its insert, it uses a mutex to take sole control of the data buffer. The consumer grabs the last value inserted into the data buffer, consumes it, decrements the buffer item count, and prints the data's value to the console. While the consumer performs its removal, it uses a mutex to take sole control of the data buffer. We hard-coded the program to use 2 producer and 2 consumer threads - 4 total so as not to go over the enforced server thread limit. 
 \\
 
 \subsection{What do you think the main point of this assignment is}
@@ -157,35 +159,54 @@ We implemented verbose comments within our program so we could easily track each
 
 \subsection{What did you learn?}
 \noindent 
-From this assignment we learned a lot about kernel and Qemu in the Yocto environment. Learning about to set up the environment was definitely a challenge at first, but we feel like once we get comfortable with it we can use it better in the future. Also, we learned how to use multi-threads, thread interaction, and pthread in C.   
-\\ 
+We learned how to implement multi-threads and how to properly interact with shared data resources using pthread in C. We learned about the basic concept of concurrency, what it means to share and manage resources, and how the issue of concurrency can be handled by using mutexes and/or semaphores. We learned that when dealing with concurrency and multiple threads, it is very difficult to predict the order in which threads will finish and which thread will have access to what at a given time. It is imperative to recognize when concurrency is a potential issue and approach it with the appropriate solution.\\
+
+Furthermore, we learned a lot about building the Linux kernel and running it in a virtual environment using Qemu. Learning to build the kernel and initialize the Qemu environment was definitely a challenge at first, however, we are much more comfortable performing these tasks now that we've had the chance to do so a number of times.
+\\
 \section{Version Control Log}
+
 \begin{tabular}{l l l}
+
 \textbf{Detail} & \textbf{Author} & \textbf{Description}\\
-\hline asdfas & asdfas & asdfas  \\
-\hline asdfas & asdfas & asdfas  \\
-\hline asdfas & asdfas & asdfas  \\
+\hline {c449c05} & yeja94 & uploaded a  prototype for concurrency.c  \\
+\hline {0811998} & yeja94 & Merge pull request to branch 1  \\
+\hline {a0ae11f} & yeja94 & Delete concurrency1.c from branch and merge/pull request it to master \\
+\hline {ec8f8f6} & {hemphilc} & {created concurrency.c renamed from concurrency1.c} \\
+\hline {c476612} & {hemphilc} & {Updated mt19937ar.c} \\
+\hline {fa9af7c} & {hemphilc} & {Updated concurrency.c} \\
+\hline {f3a788b} & {hemphilc} & {Updated concurrency.c} \\
+\hline {5afa7b8} & {hemphilc} & {Updated concurrency.c} \\
+\hline {1d6195e} & {hemphilc} & {Updated concurrency.c} \\
+\hline {02764ed} & {hemphilc} & {Updated concurrency.c} \\
+\hline {12a51c2} & {hemphilc} & {Updated concurrency.c} \\
+\hline {d2d0bf6} & {hemphilc} & {Updated concurrency.c} \\
+\hline {cf506d6} & {hemphilc} & {Updated concurrency.c} \\
+\hline {5934608} & {hemphilc} & {Updated concurrency.c} \\
+\hline {fcd13e4} & {hemphilc} & {Updated concurrency.c} \\
+\hline {3e9192c} & {hemphilc} & {Updated concurrency.c} \\
+\hline {9695cc6} & {hemphilc} & {Updated concurrency.c} \\
+\hline {48d72ee} & {hemphilc} & {Updated concurrency.c} \\
+\hline {88e7506} & {hemphilc} & {Updated concurrency.c} \\
+\hline {5e3c44a} & {hemphilc} & {v1.1} \\
+\hline {638164c} & {hemphilc} & {Created makefile for the assignment} \\
+\hline {34b041b} & {hemphilc} & {Created README} \\
+\hline {d4f96e6} & {hemphilc} & {Updated README} \\
 
 \end{tabular}
-
 
 \section{Work Log}
 % List out the work by each member. Briefly state the date and description of the work. 
 \begin{itemize}
+
 \item \textit{10/02/2017}\\ Jason and Corey learning how to build Kernel and run Qemu \\
-\item \textit{10/03/2017}\\ Jason started concurrency setup in Github and Concurrency research\\
-\item \textit{10/03/2017}\\ Jason started concurrency.c. Added provided files and created functions, variables, and structs.  \\
-\item \textit{10/04/2017}\\ Corey figured out how to build kernel and ran Qemu successfully. He demonstrated to Jason and completed the first part of the project.\\ 
+\item \textit{10/03/2017}\\ Jason started concurrency.c setup in GitHub and producer-consumer problem research\\
+\item \textit{10/03/2017}\\ Jason began implementing concurrency.c. Added files and created functions, variables, and structs  \\
+\item \textit{10/04/2017}\\ Corey figured out how to clone the Linux yocto 3.19 repository, search for and checkout the correct version tag within the repo, build the Linux kernel, and run the kernel on Qemu successfully. He demonstrated to Jason step by step how to complete this process\\ 
 \item \textit{10/05/2017}\\ Jason completed a prototype of the concurrency.c with a complete producer and consumer functions along with random number generator. Missing the main function and function prototype. \\
-\item \textit{10/06/2017}\\
-
-
+\item \textit{10/07/2017}\\ Corey began cleaning up and formatting the prototype of the concurrency.c file according to the established style guide, implemented the main function for testing, implemented bug checking and commenting, and implemented verbose commenting for testing and verifying the accuracy of the program. \\
+\item \textit{10/08/2017}\\ Corey and Jason continue testing concurrency.c and create the project 1 report in Latex \\
+\item \textit{10/08/2017}\\ Corey and Jason continue working on the homework 1 report and prepare to submit all of homework 1 \\
 
 \end{itemize}
-
-
-
-
-
 
 \end{document}
