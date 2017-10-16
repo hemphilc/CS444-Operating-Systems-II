@@ -1,13 +1,13 @@
  # Jason Ye - yeja@oregonstate.edu
  # Corey Hemphill - hemphilc@oregonstate.edu
- # CS444 - Project 1 README
- # October 9, 2017
+ # CS444 - Project 2 README
+ # October 23, 2017
  # README
 
 To compile concurrency.c:
 
-        gcc -pthread -Wall -g concurrency.c -o concurrency
+        gcc sstf-iosched.c -o sstf-iosched
 
 To run concurrency:
 
-        ./concurrency
+        ./sstf-iosched
