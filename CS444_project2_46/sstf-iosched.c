@@ -15,15 +15,14 @@
 
 struct sstf_data{
 	struct list_head queue;
-
-
 };
 
-struct void sstf_merged_request(struct , struct){
+static struct request *
+
+struct void sstf_merged_request(){
 
 }
 
-static struct request *
 sstf_latter_request(struct, struct){
 
 }
