@@ -7,7 +7,7 @@
 */
 
 /*
- * elevator noop
+ * elevator sstf
  */
 #include <linux/blkdev.h>
 #include <linux/elevator.h>
@@ -34,20 +34,16 @@ static int sstf_dispatch(struct request_queue *q, int force)
         struct sstf_data *sd = q->elevator->elevator_data;
 
         if (!list_empty(&sd->queue)) {
-                struct request *rq, prq, nrq;
+			struct request *rq;
+			rq = list_entry(sd->queue.next, struct request, queuelist);
 
+			printk(KERN_DEBUG "SSTF: dispatching sector number: %llu\n", blk_rq_pos(rq));
 
+			list_del_init(&rq->queuelist)
 
+            elv_dispatch_sort(q, rq);
+            return 1;
 
-
-
-
-
-
-                rq = list_entry(sd->queue.next, struct request, queuelist);
-                list_del_init(&rq->queuelist);
-                elv_dispatch_sort(q, rq);
-                return 1;
         }
         return 0;
 }
@@ -55,30 +51,35 @@ static int sstf_dispatch(struct request_queue *q, int force)
 static void sstf_add_request(struct request_queue *q, struct request *rq)
 {
         struct sstf_data *sd = q->elevator->elevator_data;
+		struct list_head *cp;
+		struct request *cn;
 
-        list_add_tail(&rq->queuelist, &sd->queue);
+		//add if list is empty regardless of where rq is
+		if (list_empty(&sd->queue)){
 
+			printk(KERN_DEBUG "SSTF: adding request with sector number: %llu\n", blk_rq_pos(rq));
 
+			list_add(&rq->queuelist, &sd->queue);
+		}
+		else{
+			//ilteration for list
+			list_for_each(cp, &sd->queue){
+				cn = list_entry(cp, struct request, queuelist);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+				//if request sector is higher than current node
+				if (blk_rq_pos(rq) > blk_rq_pos(cn)){
+					//printk "error checking"
+					list_add(&rq->queuelist, &cn->queuelist);
+					break;
+				}
+			}
+		}
 }
 
 static struct request *
 sstf_former_request(struct request_queue *q, struct request *rq)
 {
-        struct noop_data *sd = q->elevator->elevator_data;
+        struct sstf_data *sd = q->elevator->elevator_data;
 
         if (rq->queuelist.prev == &sd->queue)
                 return NULL;
@@ -127,7 +128,7 @@ static void sstf_exit_queue(struct elevator_queue *e)
         kfree(sd);
 }
 
-static struct elevator_type elevator_noop = {
+static struct elevator_type elevator_sstf = {
         .ops = {
                 .elevator_merge_req_fn          = sstf_merged_requests,
                 .elevator_dispatch_fn           = sstf_dispatch,
@@ -151,8 +152,8 @@ static void __exit sstf_exit(void)
         elv_unregister(&elevator_sstf);
 }
 
-module_init(noop_init);
-module_exit(noop_exit);
+module_init(sstf_init);
+module_exit(sstf_exit);
 
 
 MODULE_AUTHOR("Jason Ye, Corey Hemphill");
