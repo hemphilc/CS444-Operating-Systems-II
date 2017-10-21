@@ -23,7 +23,7 @@ struct sstf_data {
 
 };
 
-static void noop_merged_requests(struct request_queue *q, struct request *rq,
+static void sstf_merged_requests(struct request_queue *q, struct request *rq,
                                  struct request *next)
 {
         list_del_init(&next->queuelist);
@@ -76,42 +76,42 @@ static void sstf_add_request(struct request_queue *q, struct request *rq)
 }
 
 static struct request *
-noop_former_request(struct request_queue *q, struct request *rq)
+sstf_former_request(struct request_queue *q, struct request *rq)
 {
-        struct noop_data *nd = q->elevator->elevator_data;
+        struct noop_data *sd = q->elevator->elevator_data;
 
-        if (rq->queuelist.prev == &nd->queue)
+        if (rq->queuelist.prev == &sd->queue)
                 return NULL;
         return list_entry(rq->queuelist.prev, struct request, queuelist);
 }
 
 static struct request *
-noop_latter_request(struct request_queue *q, struct request *rq)
+sstf_latter_request(struct request_queue *q, struct request *rq)
 {
-        struct noop_data *nd = q->elevator->elevator_data;
+        struct sstf_data *sd = q->elevator->elevator_data;
 
-        if (rq->queuelist.next == &nd->queue)
+        if (rq->queuelist.next == &sd->queue)
                 return NULL;
         return list_entry(rq->queuelist.next, struct request, queuelist);
 }
 
-static int noop_init_queue(struct request_queue *q, struct elevator_type *e)
+static int sstf_init_queue(struct request_queue *q, struct elevator_type *e)
 {
-        struct noop_data *nd;
+        struct sstf_data *sd;
         struct elevator_queue *eq;
 
         eq = elevator_alloc(q, e);
         if (!eq)
                 return -ENOMEM;
 
-        nd = kmalloc_node(sizeof(*nd), GFP_KERNEL, q->node);
-        if (!nd) {
+        sd = kmalloc_node(sizeof(*sd), GFP_KERNEL, q->node);
+        if (!sd) {
                 kobject_put(&eq->kobj);
                 return -ENOMEM;
         }
-        eq->elevator_data = nd;
+        eq->elevator_data = sd;
 
-        INIT_LIST_HEAD(&nd->queue);
+        INIT_LIST_HEAD(&sd->queue);
 
         spin_lock_irq(q->queue_lock);
         q->elevator = eq;
@@ -119,23 +119,23 @@ static int noop_init_queue(struct request_queue *q, struct elevator_type *e)
         return 0;
 }
 
-static void noop_exit_queue(struct elevator_queue *e)
+static void sstf_exit_queue(struct elevator_queue *e)
 {
-        struct noop_data *nd = e->elevator_data;
+        struct sstf_data *sd = e->elevator_data;
 
-        BUG_ON(!list_empty(&nd->queue));
-        kfree(nd);
+        BUG_ON(!list_empty(&sd->queue));
+        kfree(sd);
 }
 
 static struct elevator_type elevator_noop = {
         .ops = {
-                .elevator_merge_req_fn          = noop_merged_requests,
+                .elevator_merge_req_fn          = sstf_merged_requests,
                 .elevator_dispatch_fn           = sstf_dispatch,
                 .elevator_add_req_fn            = sstf_add_request,
-                .elevator_former_req_fn         = noop_former_request,
-                .elevator_latter_req_fn         = noop_latter_request,
-                .elevator_init_fn               = noop_init_queue,
-                .elevator_exit_fn               = noop_exit_queue,
+                .elevator_former_req_fn         = sstf_former_request,
+                .elevator_latter_req_fn         = sstf_latter_request,
+                .elevator_init_fn               = sstf_init_queue,
+                .elevator_exit_fn               = sstf_exit_queue,
         },
         .elevator_name = "sstf",
         .elevator_owner = THIS_MODULE,
