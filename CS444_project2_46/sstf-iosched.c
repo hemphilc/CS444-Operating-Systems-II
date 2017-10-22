@@ -33,16 +33,15 @@ static int sstf_dispatch(struct request_queue *q, int force)
         struct sstf_data *sd = q->elevator->elevator_data;
 
         if (!list_empty(&sd->queue)) {
-			struct request *rq;
-			rq = list_entry(sd->queue.next, struct request, queuelist);
+		struct request *rq;
+		rq = list_entry(sd->queue.next, struct request, queuelist);
 
-			printk(KERN_DEBUG "SSTF: dispatching sector number: %llu\n", blk_rq_pos(rq));
+		printk(KERN_DEBUG "SSTF: dispatching sector number: %llu\n", blk_rq_pos(rq));
 
-			list_del_init(&rq->queuelist)
+		list_del_init(&rq->queuelist)
 
-            elv_dispatch_sort(q, rq);
-            return 1;
-
+            	elv_dispatch_sort(q, rq);
+            	return 1;
         }
         return 0;
 }
@@ -50,29 +49,28 @@ static int sstf_dispatch(struct request_queue *q, int force)
 static void sstf_add_request(struct request_queue *q, struct request *rq)
 {
         struct sstf_data *sd = q->elevator->elevator_data;
-		struct list_head *cp;
-		struct request *cn;
+	struct list_head *cp;
+	struct request *cn;
 
-		//add if list is empty regardless of where rq is
-		if (list_empty(&sd->queue)){
+	// Add if list is empty regardless of where rq is
+	if (list_empty(&sd->queue)) {
+		printk(KERN_DEBUG "SSTF: adding request with sector number: %llu\n", blk_rq_pos(rq));
+		
+		list_add(&rq->queuelist, &sd->queue);
+	}
+	else {
+		// Iteration for list
+		list_for_each(cp, &sd->queue){
+			cn = list_entry(cp, struct request, queuelist);
 
-			printk(KERN_DEBUG "SSTF: adding request with sector number: %llu\n", blk_rq_pos(rq));
-
-			list_add(&rq->queuelist, &sd->queue);
-		}
-		else{
-			//ilteration for list
-			list_for_each(cp, &sd->queue){
-				cn = list_entry(cp, struct request, queuelist);
-
-				//if request sector is higher than current node
-				if (blk_rq_pos(rq) > blk_rq_pos(cn)){
-					//printk "error checking"
-					list_add(&rq->queuelist, &cn->queuelist);
-					break;
-				}
+			// If request sector is higher than current node
+			if (blk_rq_pos(rq) > blk_rq_pos(cn)) {
+				//printk "error checking"
+				list_add(&rq->queuelist, &cn->queuelist);
+				break;
 			}
 		}
+	}
 }
 
 static struct request *
