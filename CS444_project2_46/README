@@ -3,11 +3,3 @@
  # CS444 - Project 2 README
  # October 23, 2017
  # README
-
-To compile:
-
-        gcc sstf-iosched.c -o sstf-iosched
-
-To run:
-
-        ./sstf-iosched
