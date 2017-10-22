@@ -20,7 +20,6 @@
 
 struct sstf_data {
         struct list_head queue;
-
 };
 
 static void sstf_merged_requests(struct request_queue *q, struct request *rq,
