@@ -16,7 +16,7 @@
 #include <linux/slab.h>
 #include <linux/init.h>
 
-#define DEBUG 0
+#define DEBUG 1
 
 struct sstf_data {
         struct list_head queue;
@@ -35,8 +35,9 @@ static int sstf_dispatch(struct request_queue *q, int force)
         if (!list_empty(&sd->queue)) {
 		struct request *rq;
 		rq = list_entry(sd->queue.next, struct request, queuelist);
-
-		printk(KERN_DEBUG "SSTF: dispatching sector number: %llu\n", blk_rq_pos(rq));
+		
+		if (DEBUG)
+			printk(KERN_DEBUG "SSTF: dispatching sector: %llu\n", rq blk_rq_pos(rq));
 
 		list_del_init(&rq->queuelist)
 
@@ -54,18 +55,21 @@ static void sstf_add_request(struct request_queue *q, struct request *rq)
 
 	// Add if list is empty regardless of where rq is
 	if (list_empty(&sd->queue)) {
-		printk(KERN_DEBUG "SSTF: adding request with sector number: %llu\n", blk_rq_pos(rq));
+		if (DEBUG)
+			printk(KERN_DEBUG "SSTF: adding sector: %llu\n", blk_rq_pos(rq));
 		
 		list_add(&rq->queuelist, &sd->queue);
 	}
 	else {
-		// Iteration for list
-		list_for_each(cp, &sd->queue){
+		// Iterate through the request list
+		list_for_each(cp, &sd->queue) {
 			cn = list_entry(cp, struct request, queuelist);
 
-			// If request sector is higher than current node
+			// If the request sector is higher than current node
 			if (blk_rq_pos(rq) > blk_rq_pos(cn)) {
-				//printk "error checking"
+				if (DEBUG)
+					printk(KERN_DEBUG "Error checking...\n");
+				
 				list_add(&rq->queuelist, &cn->queuelist);
 				break;
 			}
@@ -114,7 +118,11 @@ static int sstf_init_queue(struct request_queue *q, struct elevator_type *e)
         spin_lock_irq(q->queue_lock);
         q->elevator = eq;
         spin_unlock_irq(q->queue_lock);
-        return 0;
+
+	if (DEBUG)
+		printk(KERNEL_DEBUG "Queue initialized\n");
+        
+	return 0;
 }
 
 static void sstf_exit_queue(struct elevator_queue *e)
@@ -123,6 +131,9 @@ static void sstf_exit_queue(struct elevator_queue *e)
 
         BUG_ON(!list_empty(&sd->queue));
         kfree(sd);
+
+	if (DEBUG)
+		printk(KERNEL_DEBUG "Queue destroyed\n");
 }
 
 static struct elevator_type elevator_sstf = {
