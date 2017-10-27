@@ -1,13 +1,21 @@
+/*
+ * Jason Ye - yeja@oregonstate.edu
+ * Corey Hemphill - hemphilc@oregonstate.edu
+ * CS444 - Concurrency 2 
+ * October 26, 2017
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
 #include <unistd.h>
 
-pthread_mutex_t print_lock;
-pthread_mutex_t fork[5];
-
 #define TRUE  1
+#define NUM_PHILOSOPHERS 5
+
+pthread_mutex_t print_lock;
+pthread_mutex_t fork[NUM_PHILOSOPHERS];
 
 struct philosopher_info{
 	char name[100];
@@ -17,7 +25,7 @@ struct philosopher_info{
 
 void philosopher_names(struct philosopher_info *person){
 
-	person = malloc(sizeof(struct philosopher_info) * 5);
+	person = malloc(sizeof(struct philosopher_info) * NUM_PHILOSOPHERS);
 
 	//delcaring their names
 	strcpy(person[0].name, "Plato";);
@@ -53,7 +61,7 @@ void get_forks(struct philosopher_info *person){
 	int right_fork;
 	int left_fork;
 
-	if (person->seat_num + 1 == 5){
+	if (person->seat_num + 1 == NUM_PHILOSOPHERS){
 		right_fork = 0;
 		left_fork = person->seat_num;
 	}
@@ -61,12 +69,13 @@ void get_forks(struct philosopher_info *person){
 		right_fork = person->seat_num;
 		left_fork = person->seat_num + 1;
 	}
-
+	//first fork
 	phtread_mutex_lock(&print_lock);
 	printf("Fork #%d assign to %s\n", right_fork, person->name);
 	phtread_mutex_unlock(&print_lock);
 	phtread_mutex_lock(&fork[right_fork]);
 
+	//second fork
 	phtread_mutex_lock(&print_lock);
 	printf("Fork #%d assign to %s\n", left_fork, person->name);
 	phtread_mutex_unlock(&print_lock);
@@ -77,7 +86,7 @@ void get_forks(struct philosopher_info *person){
 void put_forks(struct philosopher_info *person){
 	int right_fork;
 	int left_fork;
-	if(person->seat_num+1 == 5){
+	if(person->seat_num+1 == NUM_PHILOSOPHERS){
 		right_fork = 0;
 		left_fork = person->seat_num;
 	}
@@ -96,8 +105,9 @@ void put_forks(struct philosopher_info *person){
 
 void actions(void *philosopher){
 
+	//assigning each philosopher's actions
 	struct philosopher_info *person = (struct philosopher_info *)philosopher;
-
+	
 	while (TRUE){
 		think(person);
 		get_fork(person);
@@ -111,27 +121,29 @@ int main(){
 
 	struct philosopher_info *person;
 	//five philosohper will be on the table
-	person = malloc(sizeof(struct philosopher_info) * 5);
+	person = malloc(sizeof(struct philosopher_info) * NUM_PHILOSOPHERS);
 
 	philosopher_names(person);
 
+	//assign each person a seat
 	int i;
 	
-	for (i = 0; i < 5; i++){
+	for (i = 0; i < NUM_PHILOSOPHERS; i++){
 		person[i].seat_num = i;
 	}
 
+	//mutex initialization
 	pthread_mutex_init(&print_lock, NULL);
-	for (i = 0; i < 5; i++){
+	for (i = 0; i < NUM_PHILOSOPHERS; i++){
 		pthread_mutex_init(&fork[i], NULL);
 	}
 
-	pthread_t threads[5];
-	for (i = 0; i < 5; i++){
+	pthread_t threads[NUM_PHILOSOPHERS];
+	for (i = 0; i < NUM_PHILOSOPHERS; i++){
 		pthread_create(&threads[i], NULL, actions, &person[i]);
 	}
 
-	for (i = 0; i < 5; i++){
+	for (i = 0; i < NUM_PHILOSOPHERS; i++){
 		pthread_join(threads[i], NULL);
 	}
 
