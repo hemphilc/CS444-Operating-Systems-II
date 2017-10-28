@@ -12,6 +12,7 @@
 #include <unistd.h>
 
 #define TRUE 1
+#define VERBOSE 1
 #define NUM_PHILOSOPHERS 5
 #define NAME_LEN 20
 #define THINK_TIME 20
