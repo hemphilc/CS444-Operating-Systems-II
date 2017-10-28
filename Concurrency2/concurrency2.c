@@ -79,19 +79,22 @@ int main() {
 void think(struct philosopher_info *philosopher) {
 	pthread_mutex_lock(&print_lock);
 	
-	printf("%s is thinking...\n", philosopher->name);
+	if (VERBOSE)
+		printf("%s is thinking...\n", philosopher->name);
 	
 	pthread_mutex_unlock(&print_lock);
 	
 	sleep((rand() % THINK_TIME) + 1);	
 	
-	printf("%s finished thinking...\n", philosopher->name);
+	if (VERBOSE)
+		printf("%s finished thinking...\n", philosopher->name);
 }
 
 void eat(struct philosopher_info *philosopher) {
 	pthread_mutex_lock(&print_lock);
 
-	printf("%s is eating...\n", philosopher->name);
+	if (VERBOSE)
+		printf("%s is eating...\n", philosopher->name);
 	
 	pthread_mutex_unlock(&print_lock);
 	
@@ -99,7 +102,8 @@ void eat(struct philosopher_info *philosopher) {
 	
 	pthread_mutex_lock(&print_lock);
 	
-	printf("%s finished eating...\n", philosopher->name);
+	if (VERBOSE)
+		printf("%s finished eating...\n", philosopher->name);
 	
 	pthread_mutex_unlock(&print_lock);
 }
@@ -121,13 +125,19 @@ void get_forks(struct philosopher_info *philosopher) {
 
 	//right fork
 	pthread_mutex_lock(&print_lock);
-	printf("Fork #%d assigned to %s\n", right_fork, philosopher->name);
+	
+	if (VERBOSE)
+		printf("Fork #%d assigned to %s\n", right_fork, philosopher->name);
+	
 	pthread_mutex_unlock(&print_lock);
 	pthread_mutex_lock(&forks[right_fork]);
 
 	//left fork
 	pthread_mutex_lock(&print_lock);
-	printf("Fork #%d assigned to %s\n", left_fork, philosopher->name);
+	
+	if (VERBOSE)
+		printf("Fork #%d assigned to %s\n", left_fork, philosopher->name);
+	
 	pthread_mutex_unlock(&print_lock);
 	pthread_mutex_lock(&forks[left_fork]);
 }
@@ -148,7 +158,10 @@ void put_forks(struct philosopher_info *philosopher) {
 	}
 
 	pthread_mutex_lock(&print_lock);
-	printf("%s has put down the fork...\n", philosopher->name);
+	
+	if (VERBOSE)
+		printf("%s has put down the fork...\n", philosopher->name);
+	
 	pthread_mutex_unlock(&print_lock);
 	pthread_mutex_unlock(&forks[right_fork]);
 	pthread_mutex_unlock(&forks[left_fork]);
