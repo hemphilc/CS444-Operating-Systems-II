@@ -11,7 +11,7 @@
 all: concurrency2
 
 concurrency2: concurrency2.c 
-	gcc concurrency2.c -o concurrency2 -std=c99 -g lpthread
+	gcc -std=c99 concurrency2.c -o concurrency2 -lpthread
 
 clean:
 	rm concurrency2
