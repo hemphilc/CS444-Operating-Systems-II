@@ -2,6 +2,7 @@
  * Jason Ye - yeja@oregonstate.edu
  * Corey Hemphill - hemphilc@oregonstate.edu
  * CS444 - Homework 2 - sstf I/O Scheduler
+ * Team #46
  * October 23, 2017
  * sstf-iosched.c
 */
@@ -36,11 +37,17 @@ static int sstf_dispatch(struct request_queue *q, int force)
 		struct request *rq;
 		rq = list_entry(sd->queue.next, struct request, queuelist);
 		
-		if (DEBUG)
-			printk(KERN_DEBUG "SSTF: dispatching sector: %llu\n", rq blk_rq_pos(rq));
+		if (DEBUG) {
+			char op;
+			// Determine which operation we're performing
+			if (rq_data_dir(rq) == 0)
+				op = 'r';
+			else
+				op = 'w';
+			printk("[SSTF]: dispatching sector from queue %lu %c\n", (long)blk_rq_pos(rq), op);
+		}
 
-		list_del_init(&rq->queuelist)
-
+		list_del_init(&rq->queuelist);
             	elv_dispatch_sort(q, rq);
             	return 1;
         }
@@ -56,8 +63,7 @@ static void sstf_add_request(struct request_queue *q, struct request *rq)
 	// Add if list is empty regardless of where rq is
 	if (list_empty(&sd->queue)) {
 		if (DEBUG)
-			printk(KERN_DEBUG "SSTF: adding sector: %llu\n", blk_rq_pos(rq));
-		
+			printk("[SSTF]: adding sector to queue: %s %lu\n", rq->cmd, (long)blk_rq_pos(rq));
 		list_add(&rq->queuelist, &sd->queue);
 	}
 	else {
@@ -66,10 +72,10 @@ static void sstf_add_request(struct request_queue *q, struct request *rq)
 			cn = list_entry(cp, struct request, queuelist);
 
 			// If the request sector is higher than current node
+			// insert the request sector after the current node
 			if (blk_rq_pos(rq) > blk_rq_pos(cn)) {
 				if (DEBUG)
-					printk(KERN_DEBUG "Error checking...\n");
-				
+					printk("Inserting request sector after the current node...\n");
 				list_add(&rq->queuelist, &cn->queuelist);
 				break;
 			}
@@ -120,7 +126,7 @@ static int sstf_init_queue(struct request_queue *q, struct elevator_type *e)
         spin_unlock_irq(q->queue_lock);
 
 	if (DEBUG)
-		printk(KERNEL_DEBUG "Queue initialized\n");
+		printk("Queue initialized\n");
         
 	return 0;
 }
@@ -133,7 +139,7 @@ static void sstf_exit_queue(struct elevator_queue *e)
         kfree(sd);
 
 	if (DEBUG)
-		printk(KERNEL_DEBUG "Queue destroyed\n");
+		printk("Queue destroyed\n");
 }
 
 static struct elevator_type elevator_sstf = {
