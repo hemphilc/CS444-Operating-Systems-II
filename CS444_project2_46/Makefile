@@ -22,7 +22,7 @@ PDF     = $(SRC:%.tex=%.pdf)
 
 default: all
 
-all: pdf sstf-iosched
+all: pdf
 
 pdf: $(PDF)
 
@@ -45,10 +45,7 @@ show: $(TRG)
 showps: $(PSF)
         @for i in $(PSF) ; do $(GH) $$i & done
 
-concurrency: sstf-iosched.c
-        gcc -pthread sstf-iosched.c -o sstf-iosched
-
 clean:
-        rm -f *.pdf *.ps *.dvi *.out *.log *.aux *.bbl *.blg *.pyg concurrency
+        rm -f *.pdf *.ps *.dvi *.out *.log *.aux *.bbl *.blg *.pyg
 
 .PHONY: all show clean ps pdf showps
