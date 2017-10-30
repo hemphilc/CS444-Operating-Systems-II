@@ -1,7 +1,6 @@
-diff -Nrup /scratch/fall2017/46/kernel/linux-yocto-3.19/block/sstf-iosched.c /scratch/fall2017/46/kernel/linux-yocto-3.19_dev/block/sstf-iosched.c
 --- /scratch/fall2017/46/kernel/linux-yocto-3.19/block/sstf-iosched.c	2017-10-21 21:58:56.790479828 -0700
-+++ /scratch/fall2017/46/kernel/linux-yocto-3.19_dev/block/sstf-iosched.c	2017-10-29 17:42:37.192097538 -0700
-@@ -0,0 +1,215 @@
++++ /scratch/fall2017/46/kernel/linux-yocto-3.19_dev/block/sstf-iosched.c	2017-10-29 20:26:30.628347392 -0700
+@@ -0,0 +1,218 @@
 +/*
 + * Jason Ye - yeja@oregonstate.edu
 + * Corey Hemphill - hemphilc@oregonstate.edu
@@ -108,7 +107,10 @@ diff -Nrup /scratch/fall2017/46/kernel/linux-yocto-3.19/block/sstf-iosched.c /sc
 +			}
 +
 +			// Compare the current reqs distance and
-+			// the add reqs distance. If the
++			// the add reqs distance. If the current
++			// req is greater, reinsert the current
++			// req back into the queue after the the 
++			// one we want to add
 +			if (curr_diff >= add_diff) {
 +				list_add_tail(&rq->queuelist, curr_pos);
 +				is_added = 1;
@@ -116,7 +118,7 @@ diff -Nrup /scratch/fall2017/46/kernel/linux-yocto-3.19/block/sstf-iosched.c /sc
 +			}
 +			else {
 +                        	// The current request now becomes the
-+                        	// end disk sector 
++                        	// end disk/outlying sector
 +				end_ref = curr_req;
 +			}
 +		}
