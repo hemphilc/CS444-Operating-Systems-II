@@ -265,3 +265,16 @@
  endmenu
  
  endif
+ 
+--- /scratch/fall2017/46/kernel/linux-yocto-3.19/block/Makefile	2017-10-22 15:33:41.178461000 -0700
++++ /scratch/fall2017/46/kernel/linux-yocto-3.19_dev/block/Makefile	2017-10-29 13:39:02.733993159 -0700
+@@ -18,7 +18,7 @@ obj-$(CONFIG_BLK_DEV_THROTTLING)	+= blk-
+ obj-$(CONFIG_IOSCHED_NOOP)	+= noop-iosched.o
+ obj-$(CONFIG_IOSCHED_DEADLINE)	+= deadline-iosched.o
+ obj-$(CONFIG_IOSCHED_CFQ)	+= cfq-iosched.o
+-
++obj-$(CONFIG_IOSCHED_SSTF)	+= sstf-iosched.o
+ obj-$(CONFIG_BLOCK_COMPAT)	+= compat_ioctl.o
+ obj-$(CONFIG_BLK_CMDLINE_PARSER)	+= cmdline-parser.o
+ obj-$(CONFIG_BLK_DEV_INTEGRITY) += bio-integrity.o blk-integrity.o t10-pi.o
+
