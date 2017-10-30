@@ -67,7 +67,7 @@
 +
 +	if (DEBUG) {
 +		char op;
-+       // Determine which operation we're performing
++     // Determine which operation we're performing
 +		if (rq_data_dir(rq) == 0)
 +			op = 'r';
 +		else
