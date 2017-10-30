@@ -104,7 +104,10 @@ static void sstf_add_request(struct request_queue *q, struct request *rq)
 			}
 
 			// Compare the current reqs distance and
-			// the add reqs distance. If the
+			// the add reqs distance. If the current
+			// req is greater, reinsert the current
+			// req back into the queue after the the 
+			// one we want to add
 			if (curr_diff >= add_diff) {
 				list_add_tail(&rq->queuelist, curr_pos);
 				is_added = 1;
@@ -112,7 +115,7 @@ static void sstf_add_request(struct request_queue *q, struct request *rq)
 			}
 			else {
                         	// The current request now becomes the
-                        	// end disk sector 
+                        	// end disk/outlying sector
 				end_ref = curr_req;
 			}
 		}
