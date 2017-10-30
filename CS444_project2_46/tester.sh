@@ -2,6 +2,8 @@ echo Testing sstf-iosched...
 
 dmesg --clear
 
+rm sstf-iosched_test_output.txt
+
 TEST_1=test1.txt
 TEST_2=test2.txt
 
