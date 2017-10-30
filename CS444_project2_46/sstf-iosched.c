@@ -44,7 +44,7 @@ static int sstf_dispatch(struct request_queue *q, int force)
 				op = 'r';
 			else
 				op = 'w';
-			printk("[SSTF]: dispatching sector from queue %lu %c\n", (long)blk_rq_pos(rq), op);
+			printk("SSTF: dispatching from queue %c %lu\n", op, (long)blk_rq_pos(rq));
 		}
 
 		list_del_init(&rq->queuelist);
@@ -56,29 +56,69 @@ static int sstf_dispatch(struct request_queue *q, int force)
 
 static void sstf_add_request(struct request_queue *q, struct request *rq)
 {
-        struct sstf_data *sd = q->elevator->elevator_data;
-	struct list_head *cp;
-	struct request *cn;
+	struct sstf_data *sd = q->elevator->elevator_data;
+	struct list_head *curr_pos;
+	sector_t add_req = blk_rq_pos(rq);
+	sector_t end_ref = q->end_sector;
+	int is_added = 0; // Set to 0 indicate false
+
+	if (DEBUG)
+		printk("SSTF: adding to queue %s %lu\n", rq->cmd, (long)blk_rq_pos(rq));
 
 	// Add if list is empty regardless of where rq is
 	if (list_empty(&sd->queue)) {
-		if (DEBUG)
-			printk("[SSTF]: adding sector to queue: %s %lu\n", rq->cmd, (long)blk_rq_pos(rq));
-		list_add(&rq->queuelist, &sd->queue);
+		list_add_tail(&rq->queuelist, &sd->queue);
 	}
 	else {
 		// Iterate through the request list
-		list_for_each(cp, &sd->queue) {
-			cn = list_entry(cp, struct request, queuelist);
+		// and add requests based on the 
+		// shortest seek time/distance
+		list_for_each(curr_pos, &sd->queue) {
+			struct request *curr_node = 
+				list_entry(curr_pos, struct request, queuelist);
+        		sector_t curr_req = blk_rq_pos(curr_node);
 
-			// If the request sector is higher than current node
-			// insert the request sector after the current node
-			if (blk_rq_pos(rq) > blk_rq_pos(cn)) {
-				if (DEBUG)
-					printk("Inserting request sector after the current node...\n");
-				list_add(&rq->queuelist, &cn->queuelist);
+			// Vars for recording distances between
+			// add, ref, and curr sectors
+        		unsigned int add_diff = 0;
+        		unsigned int curr_diff = 0;
+
+			// Figure out the difference between the
+			// sector we want to add and the last
+			// sector of the disk
+			if (add_req >= end_ref) {
+				add_diff = add_req - end_ref;
+			}
+			else {
+				add_diff = end_ref - add_req;
+			}
+
+			// Figure out the difference between the
+			// current sector and the last sector of
+			// the disk
+			if (curr_req >= end_ref) {
+				curr_diff = curr_req - end_ref;
+			}
+			else {
+				curr_diff = end_ref - curr_req;
+			}
+
+			// Compare the current reqs distance and
+			// the add reqs distance. If the
+			if (curr_diff >= add_diff) {
+				list_add_tail(&rq->queuelist, curr_pos);
+				is_added = 1;
 				break;
 			}
+			else {
+                        	// The current request now becomes the
+                        	// end disk sector 
+				end_ref = curr_req;
+			}
+		}
+
+		if (is_added != 1) {
+			list_add_tail(&rq->queuelist, curr_pos);
 		}
 	}
 }
