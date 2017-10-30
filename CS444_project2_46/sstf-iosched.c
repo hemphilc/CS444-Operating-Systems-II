@@ -62,8 +62,15 @@ static void sstf_add_request(struct request_queue *q, struct request *rq)
 	sector_t end_ref = q->end_sector;
 	int is_added = 0; // Set to 0 indicate false
 
-	if (DEBUG)
-		printk("SSTF: adding to queue %s %lu\n", rq->cmd, (long)blk_rq_pos(rq));
+	if (DEBUG) {
+		char op;
+               	// Determine which operation we're performing
+               	if (rq_data_dir(rq) == 0)
+			op = 'r';
+                else
+                	op = 'w';
+		printk("SSTF: adding to queue %c %lu\n", op, (long)blk_rq_pos(rq));
+	}
 
 	// Add if list is empty regardless of where rq is
 	if (list_empty(&sd->queue)) {
