@@ -1,5 +1,7 @@
 echo Testing sstf-iosched...
 
+dmesg --clear
+
 TEST_1=test1.txt
 TEST_2=test2.txt
 
@@ -13,8 +15,6 @@ do
         echo "TEST2 I/O AGAIN $i" >> $TEST_2
 done
 
-TEST_SIZE1=$(stat -c%s "$TEST_1")
-TEST_SIZE2=$(stat -c%s "$TEST_2")
+touch sstf-iosched_test_output.txt
 
-echo TEST_SIZE1
-echo TEST_SIZE2
+dmesg >> sstf-iosched_test_output.txt
