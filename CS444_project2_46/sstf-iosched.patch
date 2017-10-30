@@ -219,3 +219,49 @@
 +MODULE_AUTHOR("Jason Ye, Corey Hemphill");
 +MODULE_LICENSE("GPL");
 +MODULE_DESCRIPTION("sstf IO scheduler");
+
+
+--- /scratch/fall2017/46/kernel/linux-yocto-3.19/block/Kconfig.iosched	2017-10-04 16:09:16.002704627 -0700
++++ /scratch/fall2017/46/kernel/linux-yocto-3.19_dev/block/Kconfig.iosched	2017-10-29 16:06:54.298933363 -0700
+@@ -2,6 +2,14 @@ if BLOCK
+ 
+ menu "IO Schedulers"
+ 
++config IOSCHED_SSTF
++	bool
++	default y
++	---help---
++	  The SSTF I/O scheduler is a more complex scheduler that utilizes the
++	  shortest seek time first algorithm. It maintains a sorted request
++	  queue using insertion sort when new requests are added.
++
+ config IOSCHED_NOOP
+ 	bool
+ 	default y
+@@ -40,6 +48,7 @@ config CFQ_GROUP_IOSCHED
+ 	  Enable group IO scheduling in CFQ.
+ 
+ choice
++
+ 	prompt "Default I/O scheduler"
+ 	default DEFAULT_CFQ
+ 	help
+@@ -55,6 +64,9 @@ choice
+ 	config DEFAULT_NOOP
+ 		bool "No-op"
+ 
++	config DEFAULT_SSTF
++		bool "SSTF" if IOSCHED_SSTF=y
++
+ endchoice
+ 
+ config DEFAULT_IOSCHED
+@@ -62,7 +74,7 @@ config DEFAULT_IOSCHED
+ 	default "deadline" if DEFAULT_DEADLINE
+ 	default "cfq" if DEFAULT_CFQ
+ 	default "noop" if DEFAULT_NOOP
+-
++	default "sstf" if DEFAULT_SSTF
+ endmenu
+ 
+ endif
