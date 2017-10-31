@@ -22,3 +22,5 @@ done
 touch sstf-iosched_test_output.txt
 
 dmesg >> sstf-iosched_test_output.txt
+
+cat sstf-iosched_test_output.txt
