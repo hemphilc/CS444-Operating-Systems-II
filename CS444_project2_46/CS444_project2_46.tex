@@ -54,7 +54,6 @@
            	\textbf{\GroupMemberOne}\par
             \textbf{\GroupMemberTwo}\par
             % 5. comment out the line below this one if you do not wish to name your team
-   
             \vspace{5pt}
             
             \textbf{\Huge\ \OperatingSystemTwo}\par
@@ -63,7 +62,7 @@
         
         \begin{abstract}
         % 6. Fill in your abstract 
-        This project report is a summary of Homework 2 for Operating Systems II at Oregon State University, Fall 2017. This document includes a list of commands used to complete necessary tasks, a list of Qemu command flags used, a summary of the producer-consumer concurrency problem implementation, a version control log for homework files, and a comprehensive team member work log/history.
+        This project report is a summary of Homework 2 for Operating Systems II at Oregon State University, Fall 2017. This document includes the approach we used to implement the SSTF algorithm, a version control log for homework files, a comprehensive team member work log/history, and a report that addresses what we think the main point of this assignment was, how we approached the problem, design decisions relating to our algorithm, how we ensured our solution was correct including testing details, what we learned from the assignment, and how the TA should evaluate our work via our provided steps to prove correctness.
         \end{abstract} 
         
     \end{singlespace}
@@ -77,63 +76,89 @@
 \clearpage
 
 % 8. now you write!
-
 \section{Design Plan}
 \noindent
-First, we did a lot of research on C-LOOK I/O scheduler and tried understand its operation and functionalities. Then we look into the block directory for Noop scheduler and use it as our guidance for creating sstf-iosched.c file. Using the provided file, we simply modify the two main functions: Dispatcher and add request. Based on our understanding, the algorithm maintains a request queue sorted in the order that they would be dispatched, and when the head dispatches the requests, it will travel up to the highest request then come back down to the restart dispatching. 
+In an effort to better understand the primary objective of this assignment, we spent a lot of time researching materials related to the LOOK and C-LOOK I/O schedulers, as well as various other I/O scheduler implementations. The base of our Shortest Seek Time First (SSTF) I/O scheduler is based on the noop I/O scheduler found in the block directory at the root of our linux\_yocto\_3.19.2 kernel source tree. We copied the noop-iosched.c file and renamed it to sstf-iosched.c. We renamed all noop variables to sstf, and modified two key functions: dispatch and add request. Based on our understanding of the SSTF I/O scheduler, the algorithm should maintain a request queue that is sorted by shortest seek time, that is, each subsequent request is the shortest possible distance away from the current head position. In other words, we will dispatch requests in order of lowest seek time to highest. We designed our add request algorithm to behave in this manner and print statements every time the function is entered. We also modified the dispatcher to also print statements when it is entered.
 \\
 
 \section{Answer to Each Questions }
 \subsection{What do you think the main point of this assignment is}
 
 \noindent 
-The main focus of this assignment was to learn about I/O Scheduler and modifying the Linux kernel. It seems to us that this assignment prepares us to look deeper and understand more about kernel implementation. Also, we got to learn more about C-LOOK scheduler.  
+There were several key takeaways from this assignment. The primary focus of the assignment was to gain an understanding of how the block I/O subsystem of the Linux kernel functions. The secondary focus of the assignment was to gain some experience modifying the Linux kernel, as well as manipulate the data structures implemented within the kernel to build a functional sstf I/O scheduler algorithm. This assignment was meant to prepare us to look deeper and understand more about kernel implementation. There will likely be more difficult assignments in the near future, so this assignment was a nice, light introduction to modifying and patching the Linux kernel.
 \\
 
 \subsection{How did you personally approach the problem? Design decisions, algorithm, etc.}
 
 \noindent 
-First, we started out examining the noop-iosched.c file provided in the block directory. We modified the file based on our understanding and research on I/O scheduling. We used majority of the implementation from noop-iosched.c and only changed the functions of adding request to queue and dispatching request. 
+Our approach was rooted in the idea that we did not want to reinvent the wheel, so to speak. We wanted to use as much available functionality as possible, i.e. minimal modifications to most noop based functions, and utilize kernel data structures and operations. We started out examining the noop-iosched.c file provided in the block directory, and once we felt we had a solid understanding of how it worked, we began modifying the file based on our understanding and research of the sstf I/O scheduler. We used a majority of the implementation from noop-iosched.c and only changed the add request and dispatch request functions. 
 \\
 
 \subsection{How did you ensure your solution was correct? Testing details, for instance.}
 \noindent 
-To test our program, we decided on making a bash script that read files from the directories and output a file. It basically read/write two different files: TESTFILE and TESTFILE2. Also, we implemented a DEBUG variable and print statements to ensure our functions are working properly.  
+We implemented our algorithm with printk statements which describe whether a request is being added or dispatched, and whether its being read or written. To test our program, we developed a shell script that creates, writes to, and reads from files within the current directory, and then outputs the contents of the dmesg command to an output file. All the script does is initiate I/O operations on test files, then stores the output from the kernel ring buffer into an output file that can be read by a human to verify the algorithm is performing the way it was intended. From observing the following test output, we can indeed see that the algorithm is adding and dispatching in the sstf manner.\\
+\\
+\big[ 1546.038340\big] SSTF: adding to queue w 26338\\
+\big[ 1546.038352\big] SSTF: adding to queue w 26763\\
+\big[ 1546.038362\big] SSTF: dispatching from queue w 26763\\
+\big[ 1546.038429\big] SSTF: dispatching from queue w 26338\\
+\big[ 1546.038752\big] SSTF: adding to queue w 426332\\
+\big[ 1546.038992\big] SSTF: dispatching from queue w 426332\\
 \\
 
 \subsection{What did you learn?}
 \noindent 
-We learned how to implement C-LOOK I/O scheduling algorithm and how to interact with it on the VM. We learned how to use data structures and list in the kernel. Also, we get to learn how to build patches and running it in a VM using Qemu. \\
+We learned a lot in terms of how the block I/O subsystem operates, as well as how to use available kernel data structures to implement new algorithms within the kernel. We also learned how to interact with and test our code while running our kernel on the VM. Also, we learned how to build patch files by diffing our dev files vs the original kernel files. Most of all, we learned that working with the kernel is not for the faint of heart, or the cowardly. The kernel is an extremely complicated piece of software and it should be treated with respect. Overall, we felt this was a difficult assignment, and that there was a lot to take away from it in terms of content.\\
 
+\subsection{How should the TA evaluate your work?}
 \noindent 
-"More about kernel" 
-\\
+Simply enable the sstf I/O scheduler by patching the kernel and running the kernel via qemu. Then, simply run the tester.sh script in the virtual machine, and observe the test output file that is created and populated via dmesg. One can then observe the test output file and verify that the algorithm is adding requests starting from the lowest distance sector and ending at the farthest distance sector.
 
 \section{Version Control Log}
 
 \begin{tabular}{l l l}
 
 \textbf{Detail SHA} & \textbf{Author} & \textbf{Description}\\
-\hline {a0c57c07671e72523099815d5273c80ce20bcc70} & hemphilc & committed project 2 folder and .c file  \\
-\hline {ac9a66ec1148b5ee2ec486e1c1f1781b24c70e45} & hemphilc & committed make, IEETran, README, and .tex files \\
+\hline {a0c57c07671e72523099815d5273c80ce20bcc70} & hemphilc & committed project 2 folder and program  \\
+\hline {ac9a66ec1148b5ee2ec486e1c1f1781b24c70e45} & hemphilc & committed make, IEETran, README, and Latex files \\
 \hline {45d131ed1089ae207f7eae1a34b273c1c915e030} & hemphilc & updated README \\
-\hline {0eff62509f5a40b062bbd59227a8a4b2121d270e} & {yeja} & cloned .c file and added prototype functions. \\
+\hline {0eff62509f5a40b062bbd59227a8a4b2121d270e} & {yeja} & cloned program and added prototype functions. \\
 \hline {a6e77b6ea7c9d9c65c3f2f94282ac49963ca8137} & {yeja} & Updated sstfiosched.c file \\
 \hline {ecb3f61faf0e2e0250718cb7ad73abf3c13dfbca} & {yeja} & updated and started modifying add and dispatcher functions \\
 \hline {dc284b3e9bf231ff1a78210be8dc48f435917cc2} & {hemphilc} & Updated README \\
-\hline {964f84a823856c62f72818d201e78b2f73198882} & {hemphilc} & v.1.0 of sstfiosched.c \\
-\hline {52b3d6796edf406b610ebbbe4456074a2c99017d} & {hemphilc} & v.1.0.0 of sstfiosched.c \\
+\hline {964f84a823856c62f72818d201e78b2f73198882} & {hemphilc} & v1.0 of sstfiosched.c \\
+\hline {52b3d6796edf406b610ebbbe4456074a2c99017d} & {hemphilc} & v1.0.0 of sstfiosched.c \\
 \hline {74c23cd1c7a7e3d1618e25b993c9a11487d3b3ba} & {hemphilc} & Created blkdev.h \\
-\hline {e434f64aacbf187bf329bf62b6e04a74afc781ab} & {hemphilc} & Updated .tex file \\
-\hline {da36cf66aae9e7c601bfcfe483be3c496e761535} & {yeja} & v.1.1.0, Updated sstfiosched.c \\
+\hline {e434f64aacbf187bf329bf62b6e04a74afc781ab} & {hemphilc} & Updated Latex file \\
+\hline {da36cf66aae9e7c601bfcfe483be3c496e761535} & {yeja} & v1.1.0, Updated sstfiosched.c \\
 \hline {ce820f064d26765907f3f698897e25ed38cd76e9} & {yeja} & Updated sstfiosched.c \\
 \hline {d34989203dcd9eaf93d65ddb09d3f5a701e31dab} & {hemphilc} & Delete blkdev.h \\
 \hline {c51271c5b39c5b44ff4c07b173f84e5b59115242} & {hemphilc} & Update README
  \\
-\hline {5f4bfc80ba25c2c5bcfa65403c634ab423251523} & {hemphilc} & Update sstf-iosched.c \\
-\hline {fe24cddb1f35416116cd68e911a9f6e763127805} & {hemphilc} & Update sstf-iosched.c \\
-\hline {ec95a6bae6809a98537a3496d4092143094a73c7} & {hemphilc} & Update .tex file\\
-\hline {cc32a6817818666afbe6091341b28654166684e6} & {hemphilc} & v.1.0.1 \\
+\hline {5f4bfc80ba25c2c5bcfa65403c634ab423251523} & {hemphilc} & Updated sstf-iosched.c \\
+\hline {fe24cddb1f35416116cd68e911a9f6e763127805} & {hemphilc} & Updated sstf-iosched.c \\
+\hline {ec95a6bae6809a98537a3496d4092143094a73c7} & {hemphilc} & Updated Latex file\\
+\hline {cc32a6817818666afbe6091341b28654166684e6} & {hemphilc} & v1.0.1 \\
+\hline {87c2609b8765a10c08a487bbda7dbb1ea55c1115} & {hemphilc} & Updated Makefile\\
+\hline {8147a3e5b4973a307cfc4695f36e549401a196cc} & {hemphilc} & Updated Latex file\\
+\hline {b11725ab3543f143426401ce29da2adf539aa339} & {hemphilc} & v1.1.0\\
+\hline {e56843480c0742a0cd8c188faac88c3c780ac30c} & {hemphilc} & Created tester.sh\\
+\hline {648af0cdcc73b09910a15b65d50a174ee5e8d7b2} & {hemphilc} & v1.2.0\\
+\hline {04c63e73af7e565a6658df865706cab26f9c37e8} & {hemphilc} & Created sstf-iosched.patch\\
+\hline {c9f281ea4de5eba028b415938586654f337977a2} & {hemphilc} & v1.2.1\\
+\hline {dce9a45016e3eccbb43b08c7d485c7e7f82d7d0f} & {hemphilc} & Updated sstf-iosched.patch\\
+\hline {180820eef271a1d24a99b0c1c4e6c67f3beb8086} & {hemphilc} & Updated sstf-iosched.patch\\
+\hline {a0e13e442f308e83a065bf3ed09fa39f711ce7e3} & {hemphilc} & v1.0.3\\
+\hline {72bc2c8ba2f2b794b31bfae503af85cc1910e398} & {hemphilc} & Updated tester.sh\\
+\hline {9ddd89ad710a0f15500e0f5d06bf4a369da38f86} & {hemphilc} & Updated tester.sh\\
+\hline {ac25bf8448668da1a4f9db3771aefe914981a2fb} & {hemphilc} & Updated tester.sh\\
+\hline {3b149279619ec42fe3874d39423a8b30ac1cc5b9} & {hemphilc} & Created sstf-iosched-test-output.txt\\
+\hline {1c47043e00f86da30d45c33d9f4086ac45ba4fa2} & {hemphilc} & v1.2.3\\
+\hline {16a3da11458d2ccd97b07595572901b6962e39da} & {hemphilc} & v1.0.2\\
+\hline {ea06259dc8b4c8513c5601acd1898753611847f5} & {hemphilc} & Updated sstf-iosched.patch\\
+\hline {fc98c40be7d0d8df0841e874c76c45bae1c74e7a} & {hemphilc} & Updated sstf-iosched.patch\\
+\hline {1615a6234127cdbe72b2af13a687f74ec2da2cdc} & {hemphilc} & Updated sstf-iosched.patch\\
+
 
 \end{tabular}
 
@@ -145,10 +170,12 @@ We learned how to implement C-LOOK I/O scheduling algorithm and how to interact 
 \item \textit{10/17/2017}\\ Jason and Corey doing research on C-LOOK I/O Scheduler. \\
 \item \textit{10/18/2017}\\ Jason started to create functions that might work in sstf-iosched.c. \\ 
 \item \textit{10/20/2017}\\ Corey updated the README file and copied the functions from noo-iosched.c to sstf-iosched.c. \\
-\item \textit{10/21/2017}\\ Jason started to modify the .c file and worked on dispatcher and addrequest functions. \\
-\item \textit{10/21/2017}\\ Corey updated and debug the .c file. Also, he started to do research on patching in kernel. \\ 
-\item \textit{10/22/2017}\\ Corey updated .tex and started adding more print statement into the .c file for testing purposes. \\
-\item \textit{10/22/2017}\\
-\end{itemize}
+\item \textit{10/21/2017}\\ Jason started to modify the program and worked on dispatcher and addrequest functions. \\
+\item \textit{10/21/2017}\\ Corey updated and debug the program. Also, he started to do research on patching in kernel. \\ 
+\item \textit{10/22/2017}\\ Corey updated Latex and started adding more print statement into the program for testing purposes. \\
+\item \textit{10/28/2017}\\ Corey researched on qemu flags and edited the request function along with some logic syntax. \\
+\item \textit{10/29/2017}\\ Corey updated the makefile, created a tester.sh and patch for our program along with modifying the program. Also, a text file with testing result was added. \\
+\item \textit{10/30/2017}\\ Corey and Jason review the files in GitHub. \\
+\end{itemize} 
 
 \end{document}
