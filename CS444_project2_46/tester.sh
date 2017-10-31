@@ -1,3 +1,10 @@
+# Jason Ye - yeja@oregonstate.edu
+# Corey Hemphill - hemphilc@oregonstate.edu
+# CS444 - Homework 2 - sstf I/O Scheduler
+# Team #46
+# October 23, 2017
+# tester.sh
+
 echo Testing sstf-iosched...
 
 dmesg --clear
