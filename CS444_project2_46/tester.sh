@@ -19,6 +19,9 @@ do
         echo "TEST2 I/O AGAIN $i" >> $TEST_2
 done
 
+cat test1.txt
+cat test2.txt
+
 touch sstf-iosched_test_output.txt
 
 dmesg >> sstf-iosched_test_output.txt
