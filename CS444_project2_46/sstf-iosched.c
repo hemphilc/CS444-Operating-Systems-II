@@ -174,9 +174,6 @@ static int sstf_init_queue(struct request_queue *q, struct elevator_type *e)
         spin_lock_irq(q->queue_lock);
         q->elevator = eq;
         spin_unlock_irq(q->queue_lock);
-
-	if (DEBUG)
-		printk("Queue initialized\n");
         
 	return 0;
 }
@@ -187,9 +184,6 @@ static void sstf_exit_queue(struct elevator_queue *e)
 
         BUG_ON(!list_empty(&sd->queue));
         kfree(sd);
-
-	if (DEBUG)
-		printk("Queue destroyed\n");
 }
 
 static struct elevator_type elevator_sstf = {
