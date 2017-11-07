@@ -8,13 +8,12 @@
 
 /*
  * Original sbull.c example file obtained from:
- * https://github.com/duxing2007/ldd3-examples-3.x/tree/master/sbull
+ * https://github.com/duxing2007/ldd3-examples-3.x/blob/master/sbull/sbull.c
  *
  * RAM Disk device driver for the Linux Kernel which allocates a chunk 
  * of memory and presents it as a block device. Uses the Linux Kernel's 
  * Crypto API; block device driver encrypts and decrypts data when it is 
- * written and read. You will need to look at examples in the kernel for 
- * how to do this
+ * written and read.
  */
 
 /*
@@ -41,6 +40,7 @@
 #include <linux/buffer_head.h>	/* invalidate_bdev */
 #include <linux/bio.h>
 #include <linux/crypto.h>
+
 
 MODULE_LICENSE("Dual BSD/GPL");
 
@@ -176,7 +176,6 @@ static int sbull_xfer_bio(struct sbull_dev *dev, struct bio *bio)
 	return 0; /* Always "succeed" */
 }
 
-
 /*
  * Transfer a full request.
  */
@@ -191,8 +190,6 @@ static int sbull_xfer_request(struct sbull_dev *dev, struct request *req)
 	}
 	return nsect;
 }
-
-
 
 /*
  * Smarter request function that "handles clustering".
@@ -216,8 +213,6 @@ static void sbull_full_request(struct request_queue *q)
 	}
 }
 
-
-
 /*
  * The direct make request version.
  */
@@ -232,11 +227,9 @@ static blk_qc_t sbull_make_request(struct request_queue *q, struct bio *bio)
 	return BLK_QC_T_NONE;
 }
 
-
 /*
  * Open and close.
  */
-
 static int sbull_open(struct block_device *bdev, fmode_t mode)
 {
 	struct sbull_dev *dev = bdev->bd_disk->private_data;
@@ -309,7 +302,6 @@ void sbull_invalidate(unsigned long ldev)
 /*
  * The ioctl() implementation
  */
-
 int sbull_ioctl (struct block_device *bdev,
 		 fmode_t mode,
                  unsigned int cmd, unsigned long arg)
@@ -339,8 +331,6 @@ int sbull_ioctl (struct block_device *bdev,
 	return -ENOTTY; /* unknown command */
 }
 
-
-
 /*
  * The device operations structure.
  */
@@ -352,7 +342,6 @@ static struct block_device_operations sbull_ops = {
 	.revalidate_disk = sbull_revalidate,
 	.ioctl	         = sbull_ioctl
 };
-
 
 /*
  * Set up our internal device.
@@ -430,8 +419,6 @@ static void setup_device(struct sbull_dev *dev, int which)
 	if (dev->data)
 		vfree(dev->data);
 }
-
-
 
 static int __init sbull_init(void)
 {
