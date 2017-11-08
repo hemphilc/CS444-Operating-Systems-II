@@ -116,7 +116,7 @@ static int bytes_to_sectors_checked(unsigned long bytes)
 {
 	if(bytes % KERNEL_SECTOR_SIZE)
 	{
-		printk("***************BYTE/SECTOR DISCREPANCY***************\n");
+		printk("[BRDD]: ERROR: BYTE/SECTOR DISCREPANCY\n");
 	}
 	return bytes / KERNEL_SECTOR_SIZE;
 }
@@ -127,6 +127,7 @@ static int bytes_to_sectors_checked(unsigned long bytes)
 static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 		unsigned long nsect, char *buffer, int write)
 {
+	unsigned int i;
 	unsigned long offset = sector*KERNEL_SECTOR_SIZE;
 	unsigned long nbytes = nsect*KERNEL_SECTOR_SIZE;
 
@@ -134,10 +135,25 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 		printk (KERN_NOTICE "Beyond-end write (%ld %ld)\n", offset, nbytes);
 		return;
 	}
-	if (write)
-		memcpy(dev->data + offset, buffer, nbytes);
-	else
-		memcpy(buffer, dev->data + offset, nbytes);
+	
+	if (crypto_cipher_setkey(tfm, key, key_len) != 0)
+		printk("[BRDD]: Error setting cipher key\n");
+	
+	// Datermine whether we are performing a read or a write
+	if (write) {
+		printk("[BRDD]: Writing to RAM Disk Device...\n");
+		
+		printk("[BRDD]: Performing Encryption...\n");
+		for (int i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm))
+			crypto_cipher_encrypt_one(tfm, dev->data + offset + i, buffer + i);
+	}
+	else {
+		printk("[BRDD]: Reading from RAM Disk Device...\n");
+		
+		printk("[BRDD]: Performing Decryption...\n");
+		for (int i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm))
+			crypto_cipher_decrypt_one(tfm, buffer + i, dev->data + offset + i);	
+	}
 }
 
 /*
