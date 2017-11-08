@@ -56,6 +56,7 @@ static int ndevices = 4; /* The number of RAM disk devices */
 module_param(ndevices, int, 0);
 
 /* Add in variables for using crypto */
+#define CIPHER_TYPE "aes"
 #define CIPHER_KEY "1234567890123456"
 #define CIPHER_KEY_LEN 16
 
