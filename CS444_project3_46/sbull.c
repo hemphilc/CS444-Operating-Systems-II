@@ -50,8 +50,18 @@ static int hardsect_size = 512;
 module_param(hardsect_size, int, 0);
 static int nsectors = 1024;	/* How big the drive is */
 module_param(nsectors, int, 0);
-static int ndevices = 4;
+static int ndevices = 4; /* The number of RAM disk devices */
 module_param(ndevices, int, 0);
+
+/* Add in variables for using crypto */
+#define CIPHER_KEY "1234567890123456"
+#define CIPHER_KEY_LEN 16
+
+static char *key = CIPHER_KEY;
+module_param(key, charp, 0);
+static int key_len = CIPHER_KEY_LEN;
+module_param(key_len, int, 0);
+struct crypto_cipher *tfm;
 
 /*
  * The different "request modes" we can use.
