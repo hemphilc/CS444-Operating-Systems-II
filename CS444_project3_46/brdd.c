@@ -10,6 +10,8 @@
  * Original sbull.c example file obtained from:
  * https://github.com/duxing2007/ldd3-examples-3.x/blob/master/sbull/sbull.c
  *
+ * Also, see https://static.lwn.net/images/pdf/LDD3/ch16.pdf for further info
+ *
  * RAM Disk device driver for the Linux Kernel which allocates a chunk 
  * of memory and presents it as a block device. Uses the Linux Kernel's 
  * Crypto API; block device driver encrypts and decrypts data when it is 
@@ -111,9 +113,9 @@ static struct sbull_dev *Devices = NULL;
 
 static int bytes_to_sectors_checked(unsigned long bytes)
 {
-	if( bytes % KERNEL_SECTOR_SIZE )
+	if(bytes % KERNEL_SECTOR_SIZE)
 	{
-		printk("***************WhatTheFuck***********************\n");
+		printk("***************BYTE/SECTOR DISCREPANCY***************\n");
 	}
 	return bytes / KERNEL_SECTOR_SIZE;
 }
