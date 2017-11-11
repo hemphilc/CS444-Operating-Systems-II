@@ -4,11 +4,32 @@
 %\usepackage{minted}
 \geometry{margin=.75in}
 
+\usepackage{courier}
+\usepackage{listings}
+\lstset{
+         basicstyle=\footnotesize\ttfamily, 
+         numberstyle=\tiny,          
+         numbersep=5pt,             
+         tabsize=2,                
+         extendedchars=true,      
+         breaklines=true,        
+         showspaces=false,      
+         showtabs=false,       
+         xleftmargin=17pt,
+         framexleftmargin=17pt,
+         framexrightmargin=5pt,
+         framexbottommargin=4pt,
+         showstringspaces=false 
+ }
+ \lstloadlanguages{
+         Python
+ }
+
 \def \Author{Corey Hemphill}
 \def \Title{Operating System Feature Comparison}
 \def \Subtitle{Processes and Scheduling}
 \def \Term{cs444 Fall 2017}
-\def \DueDate{October 25, 2017}
+\def \DueDate{November 10, 2017}
 
 \def \DocType{
 	Operating Systems II
@@ -61,43 +82,9 @@ When comparing Windows and FreeBSD with the Linux kernel, one can see that a pro
 \\
 
 \section{Compare and Contrast OS Threads}
-For all intents and purposes, a thread is the most basic unit of an operating system, and they are the unit for which CPU time is allocated during a process’s execution. A process can create multiple threads. A thread is a high-level abstraction that provides the ability to execute more than one sequence of code for a given executing program. Threads allow for parallel processing and concurrency. FreeBSD and Windows operating systems implement both user and kernel modes; where every single thread maintains its own stack and counter when running in kernel mode. Switching to user mode resets all of these values that a thread maintains. For FreeBSD, and most Unix-like operating systems, threading follows the POSIX standard (pthreads), whereas Windows follows its own implementation standards (Win32 threads) \cite{MSWindows1} \cite{FreeBSD2}. The following code excerpt is from the Windows threading implementation: \cite{PsCreateSystemThread} \cite{MSWindows3} \\
+For all intents and purposes, a thread is the most basic unit of an operating system, and they are the unit for which CPU time is allocated during a process’s execution. A process can create multiple threads. A thread is a high-level abstraction that provides the ability to execute more than one sequence of code for a given executing program. Threads allow for parallel processing and concurrency. FreeBSD and Windows operating systems implement both user and kernel modes; where every single thread maintains its own stack and counter when running in kernel mode. Switching to user mode resets all of these values that a thread maintains. For FreeBSD, and most Unix-like operating systems, threading follows the POSIX standard (pthreads), whereas Windows follows its own implementation standards (Win32 threads) \cite{MSWindows1} \cite{FreeBSD2}. The following code excerpt is from the Windows threading implementation: \cite{PsCreateSystemThread} \cite{MSWindows3} \\\\
 
-
-%\begin{minted}[linenos,mathescape]{C}
-%typedef struct _DEVICE_EXTENSION {
-%  KEVENT evKill;
-%  PKTHREAD thread;
-%};
-
-%NTSTATUS StartThread(PDEVICE_EXTENSION pdx)
-%{
-%  NTSTATUS status;
-%  HANDLE hthread;
-%  KeInitializeEvent(&pdx->evKill, NotificationEvent, FALSE);
-%  status = PsCreateSystemThread(&hthread, THREAD_ALL_ACCESS,
-%    NULL, NULL, NULL, (PKSTART_ROUTINE) ThreadProc, pdx);
-%  if (!NT_SUCCESS(status))
-%    return status;
-%  ObReferenceObjectByHandle(hthread, THREAD_ALL_ACCESS, NULL,
-%    KernelMode, (PVOID*) &pdx->thread, NULL);
-%  ZwClose(hthread);
-%  return STATUS_SUCCESS;
-%}
-
-%VOID StopThread(PDEVICE_EXTENSION pdx)
-%{
-%  KeSetEvent(&pdx->evKill, 0, FALSE);
-%  KeWaitForSingleObject(pdx->thread, Executive, KernelMode, FALSE, NULL);
-%  ObDereferenceObject(pdx->thread);
-%}
-
-%VOID ThreadProc(PDEVICE_EXTENSION pdx)
-%{
-%  KeWaitForXxx(<at least pdx->evKill>);
-%  PsTerminateSystemThread(STATUS_SUCCESS);
-%}
-%\end{minted}
+\lstinputlisting[language=C]{Win32thread.c}
 
 Both operating systems allow for threads that execute exclusively in kernel space, inaccessible to users in user mode.
 For all intents and purposes, a thread is the most basic unit of an operating system, and they are the unit for which CPU time is allocated during a process’s execution. A process can create multiple threads. A thread is a high-level abstraction that provides the ability to execute more than one sequence of code for a given executing program. Threads allow for parallel processing and concurrency. FreeBSD and Windows operating systems implement both user and kernel modes; where every single thread maintains its own stack and counter when running in kernel mode. Switching to user mode resets all of these values that a thread maintains. For FreeBSD, and most Unix-like operating systems, threading follows the POSIX standard (pthreads), whereas Windows follows its own implementation standards (Win32 threads) \cite{MSWindows1} \cite{FreeBSD2}. Both operating systems allow for threads that execute exclusively in kernel space, inaccessible to users in user mode.
