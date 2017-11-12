@@ -149,13 +149,17 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 		return;
 	}
 
-	// Set the cipher key we want to use
+	/*
+	 * Set the cipher key we want to use
+	 */
 	if (crypto_cipher_setkey(tfm, key, key_len) != 0) {
 		printk("brdd: Error setting cipher key\n");
 		return;
 	}
 
-	// Determine whether we are performing a read or a write
+	/*
+	 * Determine whether we are performing a read or a write
+	 */
 	if (write) {
 		printk("brdd: Writing to RAM Disk Device...\n");
 		
