@@ -1,0 +1,165 @@
+\documentclass[onecolumn, draftclsnofoot,10pt, compsoc]{IEEEtran}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{setspace}
+\usepackage{multirow}
+
+\usepackage{geometry}
+\geometry{textheight=9.5in, textwidth=7in}
+
+% 1. Fill in these details
+\def \OperatingSystemTwo{Group 46}
+\def \OSTwoGroupNumber{46}
+\def \GroupMemberOne{Corey Hemphill}
+\def \GroupMemberTwo{Jason Ye}
+\def \HomeworkAssignmentOne{The Kernel Crypto API}
+\def \HomeworkDueDate{November 13, 2017}
+
+
+% 2. Uncomment the appropriate line below so that the document type works
+\def \DocType{	%Problem Statement
+				%Requirements Document
+				%Technology Review
+				%Design Document
+				Project 3 Report
+				}
+			
+\newcommand{\NameSigPair}[1]{\par
+\makebox[2.75in][r]{#1} \hfil 	\makebox[3.25in]{\makebox[2.25in]{\hrulefill} \hfill	\makebox[.75in]{\hrulefill}}
+\par\vspace{-12pt} \textit{\tiny\noindent
+\makebox[2.75in]{} \hfil		\makebox[3.25in]{\makebox[2.25in][r]{Signature} \hfill	\makebox[.75in][r]{Date}}}}
+% 3. If the document is not to be signed, uncomment the RENEWcommand below
+%\renewcommand{\NameSigPair}[1]{#1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\begin{titlepage}
+    \pagenumbering{gobble}
+    \begin{singlespace}
+    	%\includegraphics[height=4cm]{coe_v_spot1}
+        \hfill 
+        % 4. If you have a logo, use this include graphics command to put it on the coversheet.
+        %\includegraphics[height=4cm]{CompanyLogo}   
+        \par\vspace{.2in}
+        \centering
+        \scshape{
+            \huge  \DocType \par
+           	\huge cs444 Fall17 \par
+            {\large\today}\par
+            \vspace{.5in}
+            \textbf{\Huge\HomeworkAssignmentOne}\par
+            \vspace{.5in}
+           
+            {\large Prepared by }\par
+           	\textbf{\GroupMemberOne}\par
+            \textbf{\GroupMemberTwo}\par
+            % 5. comment out the line below this one if you do not wish to name your team
+            \vspace{5pt}
+            
+            \textbf{\Huge\ \OperatingSystemTwo}\par
+            }
+            \vspace{60pt}
+        
+        \begin{abstract}
+        % 6. Fill in your abstract 
+        This project report is a summary of Homework 2 for Operating Systems II at Oregon State University, Fall 2017. This document includes the approach we used to implement the SSTF algorithm, a version control log for homework files, a comprehensive team member work log/history, and a report that addresses what we think the main point of this assignment was, how we approached the problem, design decisions relating to our algorithm, how we ensured our solution was correct including testing details, what we learned from the assignment, and how the TA should evaluate our work via our provided steps to prove correctness.
+        \end{abstract} 
+        
+    \end{singlespace}
+\end{titlepage}
+\newpage
+\pagenumbering{arabic}
+\tableofcontents
+% 7. uncomment this (if applicable). Consider adding a page break.
+%\listoffigures
+%\listoftables
+\clearpage
+
+% 8. now you write!
+\section{Design Plan}
+\noindent
+\\
+
+\section{Answer to Each Question }
+\subsection{What do you think the main point of this assignment is}
+
+\noindent 
+\\
+
+\subsection{How did you personally approach the problem? Design decisions, algorithm, etc.}
+
+\noindent 
+\\
+
+\subsection{How did you ensure your solution was correct? Testing details, for instance.}
+\noindent 
+\\
+
+\subsection{What did you learn?}
+\noindent 
+
+\section{Version Control Log}
+
+\begin{tabular}{l l l}
+
+\textbf{Detail SHA} & \textbf{Author} & \textbf{Description}\\
+\hline {a0c57c07671e72523099815d5273c80ce20bcc70} & hemphilc & committed project 2 folder and program  \\
+\hline {ac9a66ec1148b5ee2ec486e1c1f1781b24c70e45} & hemphilc & committed make, IEETran, README, and Latex files \\
+\hline {45d131ed1089ae207f7eae1a34b273c1c915e030} & hemphilc & updated README \\
+\hline {0eff62509f5a40b062bbd59227a8a4b2121d270e} & {yeja} & cloned program and added prototype functions. \\
+\hline {a6e77b6ea7c9d9c65c3f2f94282ac49963ca8137} & {yeja} & Updated sstfiosched.c file \\
+\hline {ecb3f61faf0e2e0250718cb7ad73abf3c13dfbca} & {yeja} & updated and started modifying add and dispatcher functions \\
+\hline {dc284b3e9bf231ff1a78210be8dc48f435917cc2} & {hemphilc} & Updated README \\
+\hline {964f84a823856c62f72818d201e78b2f73198882} & {hemphilc} & v1.0 of sstfiosched.c \\
+\hline {52b3d6796edf406b610ebbbe4456074a2c99017d} & {hemphilc} & v1.0.0 of sstfiosched.c \\
+\hline {74c23cd1c7a7e3d1618e25b993c9a11487d3b3ba} & {hemphilc} & Created blkdev.h \\
+\hline {e434f64aacbf187bf329bf62b6e04a74afc781ab} & {hemphilc} & Updated Latex file \\
+\hline {da36cf66aae9e7c601bfcfe483be3c496e761535} & {yeja} & v1.1.0, Updated sstfiosched.c \\
+\hline {ce820f064d26765907f3f698897e25ed38cd76e9} & {yeja} & Updated sstfiosched.c \\
+\hline {d34989203dcd9eaf93d65ddb09d3f5a701e31dab} & {hemphilc} & Delete blkdev.h \\
+\hline {c51271c5b39c5b44ff4c07b173f84e5b59115242} & {hemphilc} & Update README
+ \\
+\hline {5f4bfc80ba25c2c5bcfa65403c634ab423251523} & {hemphilc} & Updated sstf-iosched.c \\
+\hline {fe24cddb1f35416116cd68e911a9f6e763127805} & {hemphilc} & Updated sstf-iosched.c \\
+\hline {ec95a6bae6809a98537a3496d4092143094a73c7} & {hemphilc} & Updated Latex file\\
+\hline {cc32a6817818666afbe6091341b28654166684e6} & {hemphilc} & v1.0.1 \\
+\hline {87c2609b8765a10c08a487bbda7dbb1ea55c1115} & {hemphilc} & Updated Makefile\\
+\hline {8147a3e5b4973a307cfc4695f36e549401a196cc} & {hemphilc} & Updated Latex file\\
+\hline {b11725ab3543f143426401ce29da2adf539aa339} & {hemphilc} & v1.1.0\\
+\hline {e56843480c0742a0cd8c188faac88c3c780ac30c} & {hemphilc} & Created tester.sh\\
+\hline {648af0cdcc73b09910a15b65d50a174ee5e8d7b2} & {hemphilc} & v1.2.0\\
+\hline {04c63e73af7e565a6658df865706cab26f9c37e8} & {hemphilc} & Created sstf-iosched.patch\\
+\hline {c9f281ea4de5eba028b415938586654f337977a2} & {hemphilc} & v1.2.1\\
+\hline {dce9a45016e3eccbb43b08c7d485c7e7f82d7d0f} & {hemphilc} & Updated sstf-iosched.patch\\
+\hline {180820eef271a1d24a99b0c1c4e6c67f3beb8086} & {hemphilc} & Updated sstf-iosched.patch\\
+\hline {a0e13e442f308e83a065bf3ed09fa39f711ce7e3} & {hemphilc} & v1.0.3\\
+\hline {72bc2c8ba2f2b794b31bfae503af85cc1910e398} & {hemphilc} & Updated tester.sh\\
+\hline {9ddd89ad710a0f15500e0f5d06bf4a369da38f86} & {hemphilc} & Updated tester.sh\\
+\hline {ac25bf8448668da1a4f9db3771aefe914981a2fb} & {hemphilc} & Updated tester.sh\\
+\hline {3b149279619ec42fe3874d39423a8b30ac1cc5b9} & {hemphilc} & Created sstf-iosched-test-output.txt\\
+\hline {1c47043e00f86da30d45c33d9f4086ac45ba4fa2} & {hemphilc} & v1.2.3\\
+\hline {16a3da11458d2ccd97b07595572901b6962e39da} & {hemphilc} & v1.0.2\\
+\hline {ea06259dc8b4c8513c5601acd1898753611847f5} & {hemphilc} & Updated sstf-iosched.patch\\
+\hline {fc98c40be7d0d8df0841e874c76c45bae1c74e7a} & {hemphilc} & Updated sstf-iosched.patch\\
+\hline {1615a6234127cdbe72b2af13a687f74ec2da2cdc} & {hemphilc} & Updated sstf-iosched.patch\\
+
+
+\end{tabular}
+
+\section{Work Log}
+% List out the work by each member. Briefly state the date and description of the work. 
+\begin{itemize}
+
+\item \textit{10/15/2017}\\ Corey created a project 2 folder, made README, .c and .tex files inside the folder. \\
+\item \textit{10/17/2017}\\ Jason and Corey doing research on C-LOOK I/O Scheduler. \\
+\item \textit{10/18/2017}\\ Jason started to create functions that might work in sstf-iosched.c. \\ 
+\item \textit{10/20/2017}\\ Corey updated the README file and copied the functions from noo-iosched.c to sstf-iosched.c. \\
+\item \textit{10/21/2017}\\ Jason started to modify the program and worked on dispatcher and addrequest functions. \\
+\item \textit{10/21/2017}\\ Corey updated and debug the program. Also, he started to do research on patching in kernel. \\ 
+\item \textit{10/22/2017}\\ Corey updated Latex and started adding more print statement into the program for testing purposes. \\
+\item \textit{10/28/2017}\\ Corey researched on qemu flags and edited the request function along with some logic syntax. \\
+\item \textit{10/29/2017}\\ Corey updated the makefile, created a tester.sh and patch for our program along with modifying the program. Also, a text file with testing result was added. \\
+\item \textit{10/30/2017}\\ Corey and Jason review the files in GitHub. \\
+\end{itemize} 
+
+\end{document}
