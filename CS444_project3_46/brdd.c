@@ -159,16 +159,24 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 	if (write) {
 		printk("brdd: Writing to RAM Disk Device...\n");
 		
+		print_data(buffer, nbytes);
+		
 		printk("brdd: Performing Encryption...\n");
 		for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm))
 			crypto_cipher_encrypt_one(tfm, dev->data + offset + i, buffer + i);
+		
+		print_data(dev->data + offset, nbytes);
 	}
 	else {
 		printk("brdd: Reading from RAM Disk Device...\n");
 		
+		print_data(dev->data + offset, nbytes);
+		
 		printk("brdd: Performing Decryption...\n");
 		for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm))
 			crypto_cipher_decrypt_one(tfm, buffer + i, dev->data + offset + i);
+		
+		print_data(buffer, nbytes);
 	}
 }
 
