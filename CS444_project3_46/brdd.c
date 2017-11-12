@@ -202,7 +202,7 @@ static void brdd_request(struct request_queue *q)
 		}
 		printk (KERN_NOTICE "Req dev %u dir %d sec %ld, nr %d\n",
 			(unsigned)(dev - Devices), rq_data_dir(req),
-			blk_rq_pos(req), blk_rq_cur_sectors(req));
+			(long)blk_rq_pos(req), blk_rq_cur_sectors(req));
 		brdd_transfer(dev, blk_rq_pos(req), blk_rq_cur_sectors(req),
 				bio_data(req->bio), rq_data_dir(req));
 		ret = 0;
