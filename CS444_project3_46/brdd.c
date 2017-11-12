@@ -495,7 +495,7 @@ static int __init brdd_init(void)
 	return 0;
 
   out_unregister:
-	unregister_blkdev(brdd_major, "sbd");
+	unregister_blkdev(brdd_major, "brdd");
 	return -ENOMEM;
 }
 
@@ -520,9 +520,14 @@ static void brdd_exit(void)
 		if (dev->data)
 			vfree(dev->data);
 	}
+	
+	/*
+	 * Free our cipher pointer memory and unregister our block device
+	 */
+	crypto_free_cipher(tfm);
 	unregister_blkdev(brdd_major, "brdd");
 	kfree(Devices);
 }
-	
+
 module_init(brdd_init);
 module_exit(brdd_exit);
