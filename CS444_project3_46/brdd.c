@@ -273,15 +273,14 @@ static void brdd_full_request(struct request_queue *q)
 /*
  * The direct make request version.
  */
-static blk_qc_t brdd_make_request(struct request_queue *q, struct bio *bio)
+static int brdd_make_request(struct request_queue *q, struct bio *bio)
 {
 	struct brdd_dev *dev = q->queuedata;
 	int status;
 
 	status = brdd_xfer_bio(dev, bio);
-	bio->bi_status = status;
-	bio_endio(bio);
-	return BLK_QC_T_NONE;
+	bio_endio(bio, status);
+	return 0;
 }
 
 /*
