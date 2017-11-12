@@ -195,9 +195,9 @@ static void brdd_request(struct request_queue *q)
 	req = blk_fetch_request(q);
 	while (req) {
 		struct brdd_dev *dev = req->rq_disk->private_data;
-		if (blk_rq_is_passthrough(req)) {
-			printk (KERN_NOTICE "Skip non-fs request\n");
-			ret = -EIO;
+		if (req->cmd_type != REQ_TYPE_FS) {
+			printk(KERN_NOTICE "Skip non-fs request\n");
+			__blk_end_request_all(req, -EIO);
 			goto done;
 		}
 		printk (KERN_NOTICE "Req dev %u dir %d sec %ld, nr %d\n",
