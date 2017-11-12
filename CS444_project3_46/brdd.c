@@ -116,7 +116,7 @@ static int bytes_to_sectors_checked(unsigned long bytes)
 {
 	if(bytes % KERNEL_SECTOR_SIZE)
 	{
-		printk("[BRDD]: ERROR: BYTE/SECTOR DISCREPANCY\n");
+		printk("brdd: ERROR: BYTE/SECTOR DISCREPANCY\n");
 	}
 	return bytes / KERNEL_SECTOR_SIZE;
 }
@@ -128,6 +128,7 @@ static int bytes_to_sectors_checked(unsigned long bytes)
  {
 	int i;
 
+	printk("brdd: ");
 	for (i = 0; i < length; i++)
 		printk("%02x", *buffer++);
 	printk("\n");
@@ -150,22 +151,22 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 
 	// Set the cipher key we want to use
 	if (crypto_cipher_setkey(tfm, key, key_len) != 0) {
-		printk("[BRDD]: Error setting cipher key\n");
+		printk("brdd: Error setting cipher key\n");
 		return;
 	}
 
-	// Datermine whether we are performing a read or a write
+	// Determine whether we are performing a read or a write
 	if (write) {
-		printk("[BRDD]: Writing to RAM Disk Device...\n");
+		printk("brdd: Writing to RAM Disk Device...\n");
 		
-		printk("[BRDD]: Performing Encryption...\n");
+		printk("brdd: Performing Encryption...\n");
 		for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm))
 			crypto_cipher_encrypt_one(tfm, dev->data + offset + i, buffer + i);
 	}
 	else {
-		printk("[BRDD]: Reading from RAM Disk Device...\n");
+		printk("brdd: Reading from RAM Disk Device...\n");
 		
-		printk("[BRDD]: Performing Decryption...\n");
+		printk("brdd: Performing Decryption...\n");
 		for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm))
 			crypto_cipher_decrypt_one(tfm, buffer + i, dev->data + offset + i);
 	}
@@ -483,7 +484,14 @@ static int __init brdd_init(void)
 		goto out_unregister;
 	for (i = 0; i < ndevices; i++) 
 		setup_device(Devices + i, i);
-    
+	
+	/*
+	 * Allocate memory for our cipher
+	 */
+	tfm = crypto_alloc_cipher(CIPHER_TYPE, 0, 0);
+	if (tfm == NULL)
+		goto out_unregister;
+	
 	return 0;
 
   out_unregister:
