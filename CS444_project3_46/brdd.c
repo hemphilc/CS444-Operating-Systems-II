@@ -258,9 +258,9 @@ static void brdd_full_request(struct request_queue *q)
 	int ret;
 
 	while ((req = blk_fetch_request(q)) != NULL) {
-		if (blk_rq_is_passthrough(req)) {
-			printk (KERN_NOTICE "Skip non-fs request\n");
-			ret = -EIO;
+		if (req->cmd_type != REQ_TYPE_FS) {
+			printk(KERN_NOTICE "Skip non-fs request\n");
+			__blk_end_request_all(req, -EIO);
 			goto done;
 		}
 		brdd_xfer_request(dev, req);
