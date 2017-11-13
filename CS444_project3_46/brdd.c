@@ -61,9 +61,7 @@ module_param(ndevices, int, 0);
 #define CIPHER_KEY_LEN 16
 
 static char *key = CIPHER_KEY;
-module_param(key, charp, 0);
 static int key_len = CIPHER_KEY_LEN;
-module_param(key_len, int, 0);
 struct crypto_cipher *tfm;
 
 /*
