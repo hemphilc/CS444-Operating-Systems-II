@@ -475,6 +475,17 @@ static void setup_device(struct brdd_dev *dev, int which)
 static int __init brdd_init(void)
 {
 	int i;
+	
+	/*
+	initialize the crypto during device init
+	*/
+	cipher = crypto_alloc_cipher("aes",0,0);
+	if(IS_ERR(cipher)|| (cipher==NULL){
+		printk("Unable to create Cipher!\n");
+		return PTR_ERR(cipher);
+	}
+	
+	
 	/*
 	 * Get registered.
 	 */
@@ -490,15 +501,14 @@ static int __init brdd_init(void)
 	if (Devices == NULL)
 		goto out_unregister;
 	for (i = 0; i < ndevices; i++) 
-		setup_device(Devices + i, i);
-	
+		setup_device(Devices + i, i);	
 	/*
 	 * Allocate memory for our cipher
-	 */
+	 
 	tfm = crypto_alloc_cipher(CIPHER_TYPE, 0, 0);
 	if (tfm == NULL)
 		goto out_unregister;
-	
+	*/
 	return 0;
 
   out_unregister:
