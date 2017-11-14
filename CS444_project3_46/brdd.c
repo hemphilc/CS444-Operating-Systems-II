@@ -191,20 +191,16 @@ static void brdd_request(struct request_queue *q)
 	int ret;
 
 	req = blk_fetch_request(q);
-	while (req) {
+	while (req != NULL) {
 		struct brdd_dev *dev = req->rq_disk->private_data;
-		if (req->cmd_type != REQ_TYPE_FS) {
+		if (req == NULL || req->cmd_type != REQ_TYPE_FS) {
 			printk(KERN_NOTICE "Skip non-fs request\n");
 			__blk_end_request_all(req, -EIO);
-			goto done;
+			continue;
 		}
 		printk (KERN_NOTICE "Req dev %u dir %d sec %ld, nr %d\n",
-			(unsigned)(dev - Devices), rq_data_dir(req),
-			(long)blk_rq_pos(req), blk_rq_cur_sectors(req));
-		brdd_transfer(dev, blk_rq_pos(req), blk_rq_cur_sectors(req),
-				bio_data(req->bio), rq_data_dir(req));
-		ret = 0;
-	done:
+		brdd_transfer(&Device, blk_rq_pos(req), blk_rq_cur_sectors(req), req->buffer, rq_data_dir(req));
+	
 		if(!__blk_end_request_cur(req, ret)){
 			req = blk_fetch_request(q);
 		}
