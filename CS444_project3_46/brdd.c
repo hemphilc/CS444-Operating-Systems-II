@@ -138,7 +138,7 @@ static int bytes_to_sectors_checked(unsigned long bytes)
 static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 		unsigned long nsect, char *buffer, int write)
 {
-	unsigned int i;
+	int i = 0;
 	unsigned long offset = sector*KERNEL_SECTOR_SIZE;
 	unsigned long nbytes = nsect*KERNEL_SECTOR_SIZE;
 
@@ -165,7 +165,7 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 		
 		printk("brdd: Performing Encryption...\n");
 		for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm))
-			crypto_cipher_encrypt_one(tfm, (dev->data + offset) + i, buffer + i);
+			crypto_cipher_encrypt_one(tfm, dev->data + offset + i, buffer + i);
 		
 		print_data(dev->data + offset, nbytes);
 	}
@@ -199,11 +199,14 @@ static void brdd_request(struct request_queue *q)
 			continue;
 		}
 		printk (KERN_NOTICE "Req dev %u dir %d sec %ld, nr %d\n", 
-		(unsigned)(dev - Devices), rq_data_dir(req),
+		(unsigned)(dev - Devices), rq_data_dir(req), 
 		blk_rq_pos(req), blk_rq_cur_sectors(req));
 		
-		brdd_transfer(&Device, blk_rq_pos(req), blk_rq_cur_sectors(req), req->buffer, rq_data_dir(req));
-	
+		brdd_transfer(dev, blk_rq_pos(req), blk_rq_cur_sectors(req),
+		req->buffer, rq_data_dir(req));
+		
+		ret = 0;
+	done:
 		if(!__blk_end_request_cur(req, ret)){
 			req = blk_fetch_request(q);
 		}
@@ -389,7 +392,7 @@ int brdd_ioctl (struct block_device *bdev,
 static struct block_device_operations brdd_ops = {
 	.owner           = THIS_MODULE,
 	.open 	         = brdd_open,
-	.release 	 = brdd_release,
+	.release 	 	 = brdd_release,
 	.media_changed   = brdd_media_changed,
 	.revalidate_disk = brdd_revalidate,
 	.ioctl	         = brdd_ioctl
@@ -479,10 +482,10 @@ static int __init brdd_init(void)
 	/*
 	initialize the crypto during device init
 	*/
-	cipher = crypto_alloc_cipher("aes",0,0);
-	if(IS_ERR(cipher)|| (cipher==NULL){
+	tfm = crypto_alloc_cipher("aes",0,0);
+	if(IS_ERR(tfm)|| (tfm==NULL){
 		printk("Unable to create Cipher!\n");
-		return PTR_ERR(cipher);
+		return PTR_ERR(tfm);
 	}
 	
 	
