@@ -138,7 +138,7 @@ static int bytes_to_sectors_checked(unsigned long bytes)
 static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 		unsigned long nsect, char *buffer, int write)
 {
-	int i = 0;
+	//unsigned int i;
 	unsigned long offset = sector*KERNEL_SECTOR_SIZE;
 	unsigned long nbytes = nsect*KERNEL_SECTOR_SIZE;
 
@@ -147,39 +147,39 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 		return;
 	}
 
-	/*
-	 * Set the cipher key we want to use
-	 */
-	if (crypto_cipher_setkey(tfm, key, key_len) != 0) {
-		printk("brdd: Error setting cipher key\n");
-		return;
-	}
+	// /*
+	 // * Set the cipher key we want to use
+	 // */
+	// if (crypto_cipher_setkey(tfm, key, key_len) != 0) {
+		// printk("brdd: Error setting cipher key\n");
+		// return;
+	// }
 
-	/*
-	 * Determine whether we are performing a read or a write
-	 */
-	if (write) {
-		printk("brdd: Writing to RAM Disk Device...\n");
+	// /*
+	 // * Determine whether we are performing a read or a write
+	 // */
+	// if (write) {
+		// printk("brdd: Writing to RAM Disk Device...\n");
 		
-		print_data(buffer, nbytes);
+		// print_data(buffer, nbytes);
 		
-		printk("brdd: Performing Encryption...\n");
-		for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm))
-			crypto_cipher_encrypt_one(tfm, dev->data + offset + i, buffer + i);
+		// printk("brdd: Performing Encryption...\n");
+		// for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm))
+			// crypto_cipher_encrypt_one(tfm, (dev->data + offset) + i, buffer + i);
 		
-		print_data(dev->data + offset, nbytes);
-	}
-	else {
-		printk("brdd: Reading from RAM Disk Device...\n");
+		// print_data(dev->data + offset, nbytes);
+	// }
+	// else {
+		// printk("brdd: Reading from RAM Disk Device...\n");
 		
-		print_data(dev->data + offset, nbytes);
+		// print_data(dev->data + offset, nbytes);
 		
-		printk("brdd: Performing Decryption...\n");
-		for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm))
-			crypto_cipher_decrypt_one(tfm, buffer + i, (dev->data + offset) + i);
+		// printk("brdd: Performing Decryption...\n");
+		// for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm))
+			// crypto_cipher_decrypt_one(tfm, buffer + i, (dev->data + offset) + i);
 		
-		print_data(buffer, nbytes);
-	}
+		// print_data(buffer, nbytes);
+	// }
 }
 
 /*
@@ -191,20 +191,18 @@ static void brdd_request(struct request_queue *q)
 	int ret;
 
 	req = blk_fetch_request(q);
-	while (req != NULL) {
+	while (req) {
 		struct brdd_dev *dev = req->rq_disk->private_data;
-		if (req == NULL || req->cmd_type != REQ_TYPE_FS) {
+		if (req->cmd_type != REQ_TYPE_FS) {
 			printk(KERN_NOTICE "Skip non-fs request\n");
 			__blk_end_request_all(req, -EIO);
-			continue;
+			goto done;
 		}
-		printk (KERN_NOTICE "Req dev %u dir %d sec %ld, nr %d\n", 
-		(unsigned)(dev - Devices), rq_data_dir(req), 
-		blk_rq_pos(req), blk_rq_cur_sectors(req));
-		
+		printk (KERN_NOTICE "Req dev %u dir %d sec %ld, nr %d\n",
+			(unsigned)(dev - Devices), rq_data_dir(req),
+			(long)blk_rq_pos(req), blk_rq_cur_sectors(req));
 		brdd_transfer(dev, blk_rq_pos(req), blk_rq_cur_sectors(req),
-		req->buffer, rq_data_dir(req));
-		
+				bio_data(req->bio), rq_data_dir(req));
 		ret = 0;
 	done:
 		if(!__blk_end_request_cur(req, ret)){
@@ -392,7 +390,7 @@ int brdd_ioctl (struct block_device *bdev,
 static struct block_device_operations brdd_ops = {
 	.owner           = THIS_MODULE,
 	.open 	         = brdd_open,
-	.release 	 	 = brdd_release,
+	.release 	 = brdd_release,
 	.media_changed   = brdd_media_changed,
 	.revalidate_disk = brdd_revalidate,
 	.ioctl	         = brdd_ioctl
@@ -478,17 +476,6 @@ static void setup_device(struct brdd_dev *dev, int which)
 static int __init brdd_init(void)
 {
 	int i;
-	
-	/*
-	initialize the crypto during device init
-	*/
-	tfm = crypto_alloc_cipher("aes",0,0);
-	if(IS_ERR(tfm)|| (tfm==NULL){
-		printk("Unable to create Cipher!\n");
-		return PTR_ERR(tfm);
-	}
-	
-	
 	/*
 	 * Get registered.
 	 */
@@ -504,14 +491,15 @@ static int __init brdd_init(void)
 	if (Devices == NULL)
 		goto out_unregister;
 	for (i = 0; i < ndevices; i++) 
-		setup_device(Devices + i, i);	
+		setup_device(Devices + i, i);
+	
 	/*
 	 * Allocate memory for our cipher
-	 
+	 */
 	tfm = crypto_alloc_cipher(CIPHER_TYPE, 0, 0);
 	if (tfm == NULL)
 		goto out_unregister;
-	*/
+	
 	return 0;
 
   out_unregister:
