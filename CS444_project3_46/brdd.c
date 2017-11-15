@@ -150,6 +150,7 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 	/*
 	 * Set the cipher key we want to use
 	 */
+	crypto_cipher_clear_flags(tfm, ~0);
 	crypto_cipher_setkey(tfm, key, strlen(key));
 	
 	/*
