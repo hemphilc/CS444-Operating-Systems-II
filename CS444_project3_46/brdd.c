@@ -56,11 +56,7 @@ static int ndevices = 4; /* The number of RAM disk devices */
 module_param(ndevices, int, 0);
 
 /* Add in variables for using crypto */
-#define CIPHER_KEY "1234567890123456"
-#define CIPHER_KEY_LEN 16
-
-static char *key = CIPHER_KEY;
-static int key_len = CIPHER_KEY_LEN;
+static char *key = "1234567890123456";
 static struct crypto_cipher *tfm;
 
 /*
@@ -148,12 +144,6 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 	}
 	
 	/*
-	 * Set the cipher key we want to use
-	 */
-	crypto_cipher_clear_flags(tfm, ~0);
-	crypto_cipher_setkey(tfm, key, strlen(key));
-	
-	/*
 	 * Determine whether we are performing a read or a write
 	 */
 	if (write) {
@@ -167,9 +157,8 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 		printk("brdd: Performing Encryption...\n");
 		printk("brdd: nbytes = %ld\n", nbytes);
 		printk("brdd: offset = %ld\n", offset);
-		//printk("brdd: cipher block size = %d\n", crypto_cipher_blocksize(tfm));
 		
-		for (i = 0; i < nbytes; i += 128) {
+		for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm)) {
 			crypto_cipher_encrypt_one(tfm, target + i, origin + i);
 		}
 		
@@ -186,9 +175,8 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 		printk("brdd: Performing Decryption...\n");
 		printk("brdd: nbytes = %ld\n", nbytes);
 		printk("brdd: offset = %ld\n", offset);
-		//printk("brdd: cipher block size = %d\n", crypto_cipher_blocksize(tfm));
 		
-		for (i = 0; i < nbytes; i += 128) {
+		for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm)) {
 			crypto_cipher_decrypt_one(tfm, target, origin + i);
 		}
 		
@@ -520,7 +508,7 @@ static int __init brdd_init(void)
 	/*
 	 * Set the cipher key we want to use
 	 */
-	//crypto_cipher_setkey(tfm, key, key_len);
+	crypto_cipher_setkey(tfm, key, strlen(key));
 	
 	return 0;
 
