@@ -147,30 +147,39 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 		return;
 	}
 
+	uint8_t *origin;
+	uint8_t *target;
+	
 	/*
 	 * Determine whether we are performing a read or a write
 	 */
 	if (write) {
+		origin = buffer;
+		target = dev->data + offset;
+		
 		printk("brdd: Writing to RAM Disk Device...\n");
 		
-		// print_data(buffer, nbytes);
+		// print_data(origin, nbytes);
 		
 		printk("brdd: Performing Encryption...\n");
 		for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm))
-			crypto_cipher_encrypt_one(tfm, (dev->data + offset) + i, buffer + i);
+			crypto_cipher_encrypt_one(tfm, target + i, origin + i);
 		
-		// print_data(dev->data + offset, nbytes);
+		// print_data(target, nbytes);
 	}
 	else {
+		origin = dev->data + offset;
+		target = buffer;
+		
 		printk("brdd: Reading from RAM Disk Device...\n");
 		
-		// print_data(dev->data + offset, nbytes);
+		// print_data(origin, nbytes);
 		
 		printk("brdd: Performing Decryption...\n");
 		for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm))
-			crypto_cipher_decrypt_one(tfm, buffer + i, (dev->data + offset) + i);
+			crypto_cipher_decrypt_one(tfm, target, origin + i);
 		
-		// print_data(buffer, nbytes);
+		// print_data(target, nbytes);
 	}
 }
 
