@@ -138,7 +138,7 @@ static int bytes_to_sectors_checked(unsigned long bytes)
 static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 		unsigned long nsect, char *buffer, int write)
 {
-	//unsigned int i;
+	unsigned int i;
 	unsigned long offset = sector*KERNEL_SECTOR_SIZE;
 	unsigned long nbytes = nsect*KERNEL_SECTOR_SIZE;
 
