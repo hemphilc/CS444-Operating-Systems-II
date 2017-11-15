@@ -62,7 +62,7 @@ module_param(ndevices, int, 0);
 
 static char *key = CIPHER_KEY;
 static int key_len = CIPHER_KEY_LEN;
-struct crypto_cipher *tfm;
+static struct crypto_cipher *tfm;
 
 /*
  * The different "request modes" we can use.
@@ -475,6 +475,8 @@ static void setup_device(struct brdd_dev *dev, int which)
 
 static int __init brdd_init(void)
 {
+	printk("brdd: Initializing Block RAM Disk");
+	
 	int i;
 	/*
 	 * Get registered.
@@ -509,6 +511,8 @@ static int __init brdd_init(void)
 
 static void brdd_exit(void)
 {
+	printk("brdd: Destroying Block RAM Disk");
+	
 	int i;
 
 	for (i = 0; i < ndevices; i++) {
