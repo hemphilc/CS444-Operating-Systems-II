@@ -122,15 +122,15 @@ static int bytes_to_sectors_checked(unsigned long bytes)
 /*
  * Print data
  */
- static void print_data(unsigned char *buffer, unsigned int length) 
- {
-	int i;
+ // static void print_data(unsigned char *buffer, unsigned int length) 
+ // {
+	// int i;
 
-	printk("brdd: ");
-	for (i = 0; i < length; i++)
-		printk("%02x", *buffer++);
-	printk("\n");
- }
+	// printk("brdd: ");
+	// for (i = 0; i < length; i++)
+		// printk("%02x", *buffer++);
+	// printk("\n");
+ // }
 
 /*
  * Handle an I/O request.
@@ -147,19 +147,19 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 		return;
 	}
 
-	// /*
-	 // * Set the cipher key we want to use
-	 // */
-	// if (crypto_cipher_setkey(tfm, key, key_len) != 0) {
-		// printk("brdd: Error setting cipher key\n");
-		// return;
-	// }
+	/*
+	 * Set the cipher key we want to use
+	 */
+	if (crypto_cipher_setkey(tfm, key, key_len) != 0) {
+		printk("brdd: Error setting cipher key\n");
+		return;
+	}
 
-	// /*
-	 // * Determine whether we are performing a read or a write
-	 // */
-	// if (write) {
-		// printk("brdd: Writing to RAM Disk Device...\n");
+	/*
+	 * Determine whether we are performing a read or a write
+	 */
+	if (write) {
+		printk("brdd: Writing to RAM Disk Device...\n");
 		
 		// print_data(buffer, nbytes);
 		
@@ -168,9 +168,9 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 			// crypto_cipher_encrypt_one(tfm, (dev->data + offset) + i, buffer + i);
 		
 		// print_data(dev->data + offset, nbytes);
-	// }
-	// else {
-		// printk("brdd: Reading from RAM Disk Device...\n");
+	}
+	else {
+		printk("brdd: Reading from RAM Disk Device...\n");
 		
 		// print_data(dev->data + offset, nbytes);
 		
@@ -179,7 +179,7 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 			// crypto_cipher_decrypt_one(tfm, buffer + i, (dev->data + offset) + i);
 		
 		// print_data(buffer, nbytes);
-	// }
+	}
 }
 
 /*
