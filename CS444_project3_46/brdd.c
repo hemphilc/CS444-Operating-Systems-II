@@ -62,7 +62,7 @@ module_param(ndevices, int, 0);
 
 static char *key = CIPHER_KEY;
 static int key_len = CIPHER_KEY_LEN;
-static struct crypto_cipher *tfm;
+struct crypto_cipher *tfm;
 
 /*
  * The different "request modes" we can use.
@@ -86,7 +86,6 @@ module_param(request_mode, int, 0);
  * We can tweak our hardware sector size, but the kernel talks to us
  * in terms of small sectors, always.
  */
-#define KERNEL_SECTOR_SHIFT	9
 #define KERNEL_SECTOR_SIZE	512
 
 /*
@@ -161,9 +160,12 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 		// print_data(origin, nbytes);
 		
 		printk("brdd: Performing Encryption...\n");
-		for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm)) {
-			//crypto_cipher_encrypt_one(tfm, target + i, origin + i);
+		
+		int bsize = crypto_cipher_blocksize(tfm);
+		for (i = 0; i < nbytes; i += bsize) {
+			crypto_cipher_encrypt_one(tfm, target + i, origin + i);
 		}
+		
 		// print_data(target, nbytes);
 	}
 	else {
@@ -175,9 +177,12 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 		// print_data(origin, nbytes);
 		
 		printk("brdd: Performing Decryption...\n");
-		for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm)) {
-			//crypto_cipher_decrypt_one(tfm, target, origin + i);
+		
+		int bsize = crypto_cipher_blocksize(tfm);
+		for (i = 0; i < nbytes; i += bsize) {
+			crypto_cipher_decrypt_one(tfm, target, origin + i);
 		}
+		
 		// print_data(target, nbytes);
 	}
 }
