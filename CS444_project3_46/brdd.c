@@ -139,6 +139,8 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 		unsigned long nsect, char *buffer, int write)
 {
 	unsigned int i;
+	uint8_t *origin;
+	uint8_t *target;
 	unsigned long offset = sector*KERNEL_SECTOR_SIZE;
 	unsigned long nbytes = nsect*KERNEL_SECTOR_SIZE;
 
@@ -146,9 +148,6 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 		printk (KERN_NOTICE "Beyond-end write (%ld %ld)\n", offset, nbytes);
 		return;
 	}
-
-	uint8_t *origin;
-	uint8_t *target;
 	
 	/*
 	 * Determine whether we are performing a read or a write
@@ -162,7 +161,7 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 		// print_data(origin, nbytes);
 		
 		printk("brdd: Performing Encryption...\n");
-		for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm))
+		for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm)) {}
 			//crypto_cipher_encrypt_one(tfm, target + i, origin + i);
 		
 		// print_data(target, nbytes);
@@ -176,7 +175,7 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 		// print_data(origin, nbytes);
 		
 		printk("brdd: Performing Decryption...\n");
-		for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm))
+		for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm)) {}
 			//crypto_cipher_decrypt_one(tfm, target, origin + i);
 		
 		// print_data(target, nbytes);
