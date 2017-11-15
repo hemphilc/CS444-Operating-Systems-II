@@ -87,7 +87,7 @@ module_param(request_mode, int, 0);
  * in terms of small sectors, always.
  */
 #define KERNEL_SECTOR_SHIFT	9
-#define KERNEL_SECTOR_SIZE	(1<<KERNEL_SECTOR_SHIFT)
+#define KERNEL_SECTOR_SIZE	512
 
 /*
  * After this much idle time, the driver will simulate a media change.
@@ -138,9 +138,9 @@ static int bytes_to_sectors_checked(unsigned long bytes)
 static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 		unsigned long nsect, char *buffer, int write)
 {
-	unsigned int i;
 	uint8_t *origin;
 	uint8_t *target;
+	unsigned long i;
 	unsigned long offset = sector*KERNEL_SECTOR_SIZE;
 	unsigned long nbytes = nsect*KERNEL_SECTOR_SIZE;
 
@@ -161,9 +161,9 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 		// print_data(origin, nbytes);
 		
 		printk("brdd: Performing Encryption...\n");
-		for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm)) {}
+		for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm)) {
 			//crypto_cipher_encrypt_one(tfm, target + i, origin + i);
-		
+		}
 		// print_data(target, nbytes);
 	}
 	else {
@@ -175,9 +175,9 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 		// print_data(origin, nbytes);
 		
 		printk("brdd: Performing Decryption...\n");
-		for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm)) {}
+		for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm)) {
 			//crypto_cipher_decrypt_one(tfm, target, origin + i);
-		
+		}
 		// print_data(target, nbytes);
 	}
 }
