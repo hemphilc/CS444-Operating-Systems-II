@@ -61,7 +61,7 @@ module_param(ndevices, int, 0);
 
 static char *key = CIPHER_KEY;
 static int key_len = CIPHER_KEY_LEN;
-struct crypto_cipher *tfm;
+static struct crypto_cipher *tfm;
 
 /*
  * The different "request modes" we can use.
