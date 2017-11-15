@@ -56,7 +56,6 @@ static int ndevices = 4; /* The number of RAM disk devices */
 module_param(ndevices, int, 0);
 
 /* Add in variables for using crypto */
-#define CIPHER_TYPE "aes"
 #define CIPHER_KEY "1234567890123456"
 #define CIPHER_KEY_LEN 16
 
@@ -162,7 +161,7 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 		printk("brdd: Performing Encryption...\n");
 		printk("brdd: nbytes = %d\n", nbytes);
 		printk("brdd: offset = %d\n", offset);
-		//printk("brdd: cipher block size = %d\n", crypto_cipher_blocksize(tfm));
+		printk("brdd: cipher block size = %d\n", crypto_cipher_blocksize(tfm));
 		
 		// for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm)) {
 			// crypto_cipher_encrypt_one(tfm, target + i, origin + i);
@@ -181,7 +180,7 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 		printk("brdd: Performing Decryption...\n");
 		printk("brdd: nbytes = %d\n", nbytes);
 		printk("brdd: offset = %d\n", offset);
-		//printk("brdd: cipher block size = %d\n", crypto_cipher_blocksize(tfm));
+		printk("brdd: cipher block size = %d\n", crypto_cipher_blocksize(tfm));
 		
 		// for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm)) {
 			// crypto_cipher_decrypt_one(tfm, target, origin + i);
@@ -507,10 +506,11 @@ static int __init brdd_init(void)
 	/*
 	 * Allocate memory for our cipher
 	 */
-	tfm = crypto_alloc_cipher(CIPHER_TYPE, 0, 0);
-	if (tfm == NULL)
+	tfm = crypto_alloc_cipher("aes", 0, 0);
+	if (tfm == NULL) {
+		printk("brdd: cipher alloc failure - tfm is NULL");
 		goto out_unregister;
-	
+	}
 	/*
 	 * Set the cipher key we want to use
 	 */
