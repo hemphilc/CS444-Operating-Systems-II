@@ -148,6 +148,11 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 	}
 	
 	/*
+	 * Set the cipher key we want to use
+	 */
+	crypto_cipher_setkey(tfm, key, strlen(key));
+	
+	/*
 	 * Determine whether we are performing a read or a write
 	 */
 	if (write) {
@@ -514,7 +519,7 @@ static int __init brdd_init(void)
 	/*
 	 * Set the cipher key we want to use
 	 */
-	crypto_cipher_setkey(tfm, key, key_len);
+	//crypto_cipher_setkey(tfm, key, key_len);
 	
 	return 0;
 
