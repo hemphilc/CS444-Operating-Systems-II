@@ -161,11 +161,11 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 		printk("brdd: Performing Encryption...\n");
 		printk("brdd: nbytes = %ld\n", nbytes);
 		printk("brdd: offset = %ld\n", offset);
-		printk("brdd: cipher block size = %d\n", crypto_cipher_blocksize(tfm));
+		//printk("brdd: cipher block size = %d\n", crypto_cipher_blocksize(tfm));
 		
-		// for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm)) {
-			// crypto_cipher_encrypt_one(tfm, target + i, origin + i);
-		// }
+		for (i = 0; i < nbytes; i += 128) {
+			crypto_cipher_encrypt_one(tfm, target + i, origin + i);
+		}
 		
 		// print_data(target, nbytes);
 	}
@@ -180,11 +180,11 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 		printk("brdd: Performing Decryption...\n");
 		printk("brdd: nbytes = %ld\n", nbytes);
 		printk("brdd: offset = %ld\n", offset);
-		printk("brdd: cipher block size = %d\n", crypto_cipher_blocksize(tfm));
+		//printk("brdd: cipher block size = %d\n", crypto_cipher_blocksize(tfm));
 		
-		// for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm)) {
-			// crypto_cipher_decrypt_one(tfm, target, origin + i);
-		// }
+		for (i = 0; i < nbytes; i += 128) {
+			crypto_cipher_decrypt_one(tfm, target, origin + i);
+		}
 		
 		// print_data(target, nbytes);
 	}
