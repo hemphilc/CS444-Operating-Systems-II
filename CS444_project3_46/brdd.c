@@ -56,7 +56,7 @@ static int ndevices = 4; /* The number of RAM disk devices */
 module_param(ndevices, int, 0);
 
 /* Add in variables for using crypto */
-static char *key = "1234567890123456";
+char key[] = "1234567890123456";
 struct crypto_cipher *tfm;
 
 /*
@@ -132,8 +132,8 @@ static int bytes_to_sectors_checked(unsigned long bytes)
 static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 		unsigned long nsect, char *buffer, int write)
 {
-	uint8_t *origin;
-	uint8_t *target;
+	//uint8_t *origin;
+	//uint8_t *target;
 	unsigned long i;
 	unsigned long offset = sector*KERNEL_SECTOR_SIZE;
 	unsigned long nbytes = nsect*KERNEL_SECTOR_SIZE;
@@ -143,12 +143,14 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 		return;
 	}
 	
+	crypto_cipher_clear_flags(key, ~0);
+	crypto_cipher_setkey(tfm, key, sizeof(key)));
 	/*
 	 * Determine whether we are performing a read or a write
 	 */
 	if (write) {
-		origin = buffer;
-		target = dev->data + offset;
+		//origin = buffer;
+		//target = dev->data + offset;
 		
 		printk("brdd: Writing to RAM Disk Device...\n");
 		
@@ -165,8 +167,8 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 		// print_data(target, nbytes);
 	}
 	else {
-		origin = dev->data + offset;
-		target = buffer;
+		//origin = dev->data + offset;
+		//target = buffer;
 		
 		printk("brdd: Reading from RAM Disk Device...\n");
 		
@@ -182,6 +184,7 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 		
 		// print_data(target, nbytes);
 	}
+	memcpy(buffer, dev->data + offset, nbytes);
 }
 
 /*
