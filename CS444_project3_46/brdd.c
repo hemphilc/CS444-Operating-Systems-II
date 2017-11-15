@@ -148,14 +148,6 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 	}
 
 	/*
-	 * Set the cipher key we want to use
-	 */
-	if (crypto_cipher_setkey(tfm, key, key_len) != 0) {
-		printk("brdd: Error setting cipher key\n");
-		return;
-	}
-
-	/*
 	 * Determine whether we are performing a read or a write
 	 */
 	if (write) {
@@ -475,9 +467,9 @@ static void setup_device(struct brdd_dev *dev, int which)
 
 static int __init brdd_init(void)
 {
-	printk("brdd: Initializing Block RAM Disk");
-	
 	int i;
+	
+	printk("brdd: Initializing Block RAM Disk");
 	/*
 	 * Get registered.
 	 */
@@ -502,6 +494,11 @@ static int __init brdd_init(void)
 	if (tfm == NULL)
 		goto out_unregister;
 	
+	/*
+	 * Set the cipher key we want to use
+	 */
+	crypto_cipher_setkey(tfm, key, key_len);
+	
 	return 0;
 
   out_unregister:
@@ -511,10 +508,9 @@ static int __init brdd_init(void)
 
 static void brdd_exit(void)
 {
-	printk("brdd: Destroying Block RAM Disk");
-	
 	int i;
 
+	printk("brdd: Destroying Block RAM Disk");
 	for (i = 0; i < ndevices; i++) {
 		struct brdd_dev *dev = Devices + i;
 
