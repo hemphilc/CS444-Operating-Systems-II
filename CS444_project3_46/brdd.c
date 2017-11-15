@@ -57,7 +57,7 @@ module_param(ndevices, int, 0);
 
 /* Add in variables for using crypto */
 static char *key = "1234567890123456";
-static struct crypto_cipher *tfm;
+struct crypto_cipher *tfm;
 
 /*
  * The different "request modes" we can use.
@@ -159,7 +159,7 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 		printk("brdd: offset = %ld\n", offset);
 		
 		for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm)) {
-			crypto_cipher_encrypt_one(tfm, target + i, origin + i);
+			crypto_cipher_encrypt_one(tfm, dev -> data + offset + i, buffer + i);
 		}
 		
 		// print_data(target, nbytes);
@@ -177,7 +177,7 @@ static void brdd_transfer(struct brdd_dev *dev, unsigned long sector,
 		printk("brdd: offset = %ld\n", offset);
 		
 		for (i = 0; i < nbytes; i += crypto_cipher_blocksize(tfm)) {
-			crypto_cipher_decrypt_one(tfm, target, origin + i);
+			crypto_cipher_decrypt_one(tfm, buffer + i, dev -> data + offset + i);
 		}
 		
 		// print_data(target, nbytes);
