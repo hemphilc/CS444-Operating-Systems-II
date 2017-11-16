@@ -1,0 +1,34 @@
+#!/bin/bash
+
+if [ "$#" -ne 2 ]
+    then 
+    echo -e "Specify /dev/<your-device-here> and folder mount point to new device\n";
+    exit 1;
+else
+    echo -e "Start testing.. \n";
+    echo -e "Creating file called tester.txt\n";
+    touch $2/test.txt
+    ls -la
+    echo -e "\nWriting 'Hello World' to specified file!\n";
+    echo -e "Hello World" > $2/test.txt
+    echo -e "Checking tester.txt...\n";
+    cat $2/test.txt
+    echo -e "Let's search for it with grep \n";
+    grep -a "Hello World"; 
+    echo -e "\nNothing should have been displayed since its all encrypted!\n";
+    echo -e "cat'ing its contents \n";
+    cat $2/test.txt
+
+	echo -e "encryption and decryption occurs when commands are written to /mnt/"
+    echo -e " cat'ing contents of demofile from /mnt/demofile:";
+    echo -e "using command: cat /mnt/demofile";
+    cat /mnt/demofile
+    echo -e "\n";
+	echo "deleting /mnt/demofile";
+	rm /mnt/demofile
+    echo -e "Removing test.txt..\n";
+    rm $2/test.txt
+    echo -e "Files removed! Testing completed \n";
+    exit 0;
+fi
+
