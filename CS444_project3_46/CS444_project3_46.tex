@@ -13,7 +13,7 @@
 \def \GroupMemberOne{Corey Hemphill}
 \def \GroupMemberTwo{Jason Ye}
 \def \HomeworkAssignmentOne{The Kernel Crypto API}
-\def \HomeworkDueDate{November 13, 2017}
+\def \HomeworkDueDate{November 15, 2017}
 
 
 % 2. Uncomment the appropriate line below so that the document type works
@@ -45,7 +45,7 @@
         \scshape{
             \huge  \DocType \par
            	\huge cs444 Fall17 \par
-            {\large\today}\par
+            {\large\HomeworkDueDate}\par
             \vspace{.5in}
             \textbf{\Huge\HomeworkAssignmentOne}\par
             \vspace{.5in}
@@ -62,7 +62,7 @@
         
         \begin{abstract}
         % 6. Fill in your abstract 
-        This project report is a summary of Homework 2 for Operating Systems II at Oregon State University, Fall 2017. This document includes the approach we used to implement the SSTF algorithm, a version control log for homework files, a comprehensive team member work log/history, and a report that addresses what we think the main point of this assignment was, how we approached the problem, design decisions relating to our algorithm, how we ensured our solution was correct including testing details, what we learned from the assignment, and how the TA should evaluate our work via our provided steps to prove correctness.
+        This project report is a summary of Homework 3 for Operating Systems II at Oregon State University, Fall 2017. This document includes the approach we used to implement a encrypted block device, a version control log for homework files, a comprehensive team member work log/history, and a report that addresses what we think the main point of this assignment was, how we approached the problem, design decisions relating to our algorithm, how we ensured our solution was correct including testing details, and what we learned from the assignment.
         \end{abstract} 
         
     \end{singlespace}
@@ -82,84 +82,101 @@
 
 \section{Answer to Each Question }
 \subsection{What do you think the main point of this assignment is}
-
-\noindent 
+\noindent The main point of this assignment is to learn how to load and use modules in the Linux kernel. Furthermore, the assignment was meant to give us experience working with poorly documented code libraries such as crypto. In the real world, most code is at best documented in a very mediocre fashion. We created a RAM disk driver for the Linux kernel and implemented encryption/decryption of data when the device is being written to and read from. Also, device drivers are necessary to an operating system because they provide the ability to utilize a given system's hardware. These drivers are fundamental to how computers operate, and its extremely important to gain an understanding of what they're meant to do. In essence, a driver is simply a complex signal handler for a given piece of hardware.
 \\
 
 \subsection{How did you personally approach the problem? Design decisions, algorithm, etc.}
-
-\noindent 
+\noindent First we began researching on how block drivers work and installation of modules. Using the LDD3 guideline, we were able to understand the concepts of how a kernel makes calls to the driver to process reads/writes on a given device. Corey was able to find a very useful guide on how to implement a block device driver using sbull.c, as well as sbd.c. Using the guide, and various crypto documentation pages, we were able to implement the encryption/decryption functions and apply our knowledge to run the program. As we are trying to run the program, we stumbled upon issues with the transfer function in the program. Our overall approach was to absorb some existing implementation of a block device driver, and modify it to use crypto functions. We simply added a cipher key and cipher initialization to the init function, and checked a condition in the transfer function to determine if we were reading data or writing data; if we are reading, we decrypt the data from the buffer, and if we are writing, we encrypt the data from the buffer.
 \\
 
 \subsection{How did you ensure your solution was correct? Testing details, for instance.}
-\noindent 
+\noindent For our testing, we used printk statements to ensure that the driver was encrypting and decrypting data properly when necessary. We also inserted print statements into the init and exit functions for verification. In addition, we wrote a script which returns the garbled text of the file. The script goes through a number of conditional statements which 'echo' out text, showing that the file encryption and decryption are working properly. In short, we load our module using insmod, verify its active using lsmod, then we use mkfs.ext2 /dev/brdd0 command to initialize a block ram device via the brdd0 disk in the /dev/ directory. We then use a script that goes back and forth reading and writing data to the new block ram device, and we echo the data when its being read/written. When we read, we expect the data to be decrypted so we can actually read it. When we write, we expect the data to be complete gibberish. Testing of this particular program is fairly straight forward.
 \\
 
 \subsection{What did you learn?}
-\noindent 
+\noindent For this assignment we gained experience working with a block device driver that encrypts/decrypts data when its being read/written respectively. We also learned how to install our own modules to a Linux kernel, which may be super useful in the future. In addition, we learned how to work with a poorly documented API, crypto. Seeing how most code libraries are not documented very well, practicing research and hunting down useful information is an extremely vital skill for an engineer to learn. Every bit of experience working in situations like this where knowledge is lacking will help to prepare us for working in the real world. Overall, this assignment provided a wealth of knowledge and experience that will be useful moving forward.
 
 \section{Version Control Log}
 
 \begin{tabular}{l l l}
 
 \textbf{Detail SHA} & \textbf{Author} & \textbf{Description}\\
-\hline {a0c57c07671e72523099815d5273c80ce20bcc70} & hemphilc & committed project 2 folder and program  \\
-\hline {ac9a66ec1148b5ee2ec486e1c1f1781b24c70e45} & hemphilc & committed make, IEETran, README, and Latex files \\
-\hline {45d131ed1089ae207f7eae1a34b273c1c915e030} & hemphilc & updated README \\
-\hline {0eff62509f5a40b062bbd59227a8a4b2121d270e} & {yeja} & cloned program and added prototype functions. \\
-\hline {a6e77b6ea7c9d9c65c3f2f94282ac49963ca8137} & {yeja} & Updated sstfiosched.c file \\
-\hline {ecb3f61faf0e2e0250718cb7ad73abf3c13dfbca} & {yeja} & updated and started modifying add and dispatcher functions \\
-\hline {dc284b3e9bf231ff1a78210be8dc48f435917cc2} & {hemphilc} & Updated README \\
-\hline {964f84a823856c62f72818d201e78b2f73198882} & {hemphilc} & v1.0 of sstfiosched.c \\
-\hline {52b3d6796edf406b610ebbbe4456074a2c99017d} & {hemphilc} & v1.0.0 of sstfiosched.c \\
-\hline {74c23cd1c7a7e3d1618e25b993c9a11487d3b3ba} & {hemphilc} & Created blkdev.h \\
-\hline {e434f64aacbf187bf329bf62b6e04a74afc781ab} & {hemphilc} & Updated Latex file \\
-\hline {da36cf66aae9e7c601bfcfe483be3c496e761535} & {yeja} & v1.1.0, Updated sstfiosched.c \\
-\hline {ce820f064d26765907f3f698897e25ed38cd76e9} & {yeja} & Updated sstfiosched.c \\
-\hline {d34989203dcd9eaf93d65ddb09d3f5a701e31dab} & {hemphilc} & Delete blkdev.h \\
-\hline {c51271c5b39c5b44ff4c07b173f84e5b59115242} & {hemphilc} & Update README
- \\
-\hline {5f4bfc80ba25c2c5bcfa65403c634ab423251523} & {hemphilc} & Updated sstf-iosched.c \\
-\hline {fe24cddb1f35416116cd68e911a9f6e763127805} & {hemphilc} & Updated sstf-iosched.c \\
-\hline {ec95a6bae6809a98537a3496d4092143094a73c7} & {hemphilc} & Updated Latex file\\
-\hline {cc32a6817818666afbe6091341b28654166684e6} & {hemphilc} & v1.0.1 \\
-\hline {87c2609b8765a10c08a487bbda7dbb1ea55c1115} & {hemphilc} & Updated Makefile\\
-\hline {8147a3e5b4973a307cfc4695f36e549401a196cc} & {hemphilc} & Updated Latex file\\
-\hline {b11725ab3543f143426401ce29da2adf539aa339} & {hemphilc} & v1.1.0\\
-\hline {e56843480c0742a0cd8c188faac88c3c780ac30c} & {hemphilc} & Created tester.sh\\
-\hline {648af0cdcc73b09910a15b65d50a174ee5e8d7b2} & {hemphilc} & v1.2.0\\
-\hline {04c63e73af7e565a6658df865706cab26f9c37e8} & {hemphilc} & Created sstf-iosched.patch\\
-\hline {c9f281ea4de5eba028b415938586654f337977a2} & {hemphilc} & v1.2.1\\
-\hline {dce9a45016e3eccbb43b08c7d485c7e7f82d7d0f} & {hemphilc} & Updated sstf-iosched.patch\\
-\hline {180820eef271a1d24a99b0c1c4e6c67f3beb8086} & {hemphilc} & Updated sstf-iosched.patch\\
-\hline {a0e13e442f308e83a065bf3ed09fa39f711ce7e3} & {hemphilc} & v1.0.3\\
-\hline {72bc2c8ba2f2b794b31bfae503af85cc1910e398} & {hemphilc} & Updated tester.sh\\
-\hline {9ddd89ad710a0f15500e0f5d06bf4a369da38f86} & {hemphilc} & Updated tester.sh\\
-\hline {ac25bf8448668da1a4f9db3771aefe914981a2fb} & {hemphilc} & Updated tester.sh\\
-\hline {3b149279619ec42fe3874d39423a8b30ac1cc5b9} & {hemphilc} & Created sstf-iosched-test-output.txt\\
-\hline {1c47043e00f86da30d45c33d9f4086ac45ba4fa2} & {hemphilc} & v1.2.3\\
-\hline {16a3da11458d2ccd97b07595572901b6962e39da} & {hemphilc} & v1.0.2\\
-\hline {ea06259dc8b4c8513c5601acd1898753611847f5} & {hemphilc} & Updated sstf-iosched.patch\\
-\hline {fc98c40be7d0d8df0841e874c76c45bae1c74e7a} & {hemphilc} & Updated sstf-iosched.patch\\
-\hline {1615a6234127cdbe72b2af13a687f74ec2da2cdc} & {hemphilc} & Updated sstf-iosched.patch\\
-
+\hline {ea4b4eecd525d5dfce18afd159eadb1d7f4efb1a} & hemphilc & Add files via upload  \\
+\hline {7a8d082e55ec6bd3c0d99d0496c77abec5962c0f} & hemphilc & Create sbd.c v1.0.0  \\
+\hline {04992fd7a7f074a64c6ca42a37a02c432b97329c} & hemphilc & Delete project3.c  \\
+\hline {55295313949e95b98af04646ec3bb41ffaeeeaf7} & hemphilc & Create sbull.c  \\
+\hline {865a6689b41b3566f9c181cdd5b216d54d400b77} & hemphilc & Delete sbd.c \\
+\hline {bc366c9ea5b40ee707c918f4e1012bdfda80e914} & hemphilc & updated sbull.c \\
+\hline {289855200c27e5c1430b8704c52ba430b4db9fbe} & hemphilc & update sbull.c \\
+\hline {81e960ddb04958e2b3b47418fe122ba34c8c28a3} & hemphilc & Updated and rename sbull.c to brdd.c \\
+\hline {523ae897a4aa8791ca3cd7b755bdaa137cbb722d} & {hemphilc} & updated brdd.c \\
+\hline {e939f88cc8d8b3e3cc97f3cf1d4771cea146f39e} & {hemphilc} & updated brdd.c \\
+\hline {721fca438e9ee3dafc6daa799d81c4e813ae9364} & {hemphilc} & updated brdd.c \\
+\hline {8eaa48bcf404cff9deaf8c77754c456e47ec134c} & {hemphilc} & updated brdd.c \\
+\hline {5fbce707b893dc48422db0c640a8ed59aca0cfd9} & {hemphilc} & updated brdd.c \\
+\hline {3d618a2489e6710956f9e4c02612821b56847532} & {hemphilc} & updated brdd.c \\
+\hline {77bab503252ce1832b5984e7b32fc2cb534b7729} & {hemphilc} & updated brdd.c \\
+\hline {8d46d597bc37f43beedb46fef8e9da618c46584f} & {hemphilc} & updated brdd.c \\
+\hline {e0faaf5bb15f4f80f8bbb3e54c1dab6a988ee9f7} & {yeja94} & updated makefile \\
+\hline {7e473cd2311a4dbc97cacdfd64bda6a6918fd179} & {hemphilc} & updated brdd.c\\
+\hline {d87d81e37bdd1507da64a99b79bbd6321dbfa7c8} & {hemphilc} & updated brdd.c \\
+\hline {e36807cecd466f578a8dcdf2b74e71ec295425fa} & {hemphilc} & updated brdd.c \\
+\hline {88539bc7f7c508efaabe4d84a6af0d9df5b1ff5f} & {hemphilc} & updated brdd.c\\
+\hline {409b78a7f73aa382395ac2671cab8fdfdffbae3f} & {hemphilc} & updated brdd.c \\
+\hline {409b78a7f73aa382395ac2671cab8fdfdffbae3f} & {hemphilc} & updated Create CS444project346.tex \\
+\hline {4dfad87be5996a7d33c07164bffe28f66dc75dfe} & {hemphilc} & Add files via upload \\
+\hline {439a6fb548d82b981bc461314ed6c60a2c4d113b} & {hemphilc} & updated brdd.c \\
+\hline {91fcbb1fdf2b7195ce69d66eceb0fbacd6db83b1} & {hemphilc} & updated brdd.c \\
+\hline {c9cff29b830d4fbffde5eaf9ee4281083ceb7206} & {hemphilc} & updated brdd.c \\
+\hline {32ecfa90fb84359692d03e5d698a76d31545fc82} & {hemphilc} & Delete brdd.ko \\
+\hline {56e925088a5a9c57a4885d46f9c82cddb394b67a} & {hemphilc} & Add files via upload \\
+\hline {fe4f587815414b81eb75e80ce014b4ea025b6a51} & {yeja94} & Modified brdd-request function \\
+\hline {cfa67585cc6cf3e9b8211bc30d8eee9757693acd} & {yeja94} & updated \\
+\hline {d0f11dc50cf6403c6d7a886a1b65cfd1d08d418a} & {yeja94} &Added and modified static int-init brdd-init(void) \\
+\hline {e2007e18df704e891476f961eda7095843c49449} & {yeja94} & updated  \\
+\hline {a0f02d7418f45df908253ced22524d3147010510} & {hemphilc} & updated brdd.c \\
+\hline {750229a7c42e3016f9070f9e6740b28eabc35a5b} & {hemphilc} & updated brdd.c \\
+\hline {3e2822593871da68d46de50dcc5d123ed5a098e2} & {hemphilc} & Delete brdd.ko \\
+\hline {8c9e3bd9451ef85b577abaced5f49d9b36aced74} & {hemphilc} & updated brdd.c \\
+\hline {72b756fc99f075a1c4fe0c250dfaa2c2eb94d6f7} & {hemphilc} & updated brdd.c \\
+\hline {b678208699989305f90b15d259a846ae765c1f96} & {hemphilc} & updated brdd.c \\
+\hline {dee2dbb44fcc5e3bd56967ff0f97c24362df050e} & {hemphilc} & updated brdd.c \\
+\end{tabular}
+\newpage
+\begin{tabular}{l l l}
+\hline {707619eb68753b350ceddd5073d7776abf4a8c92} & {hemphilc} & updated brdd.c \\
+\hline {9a096cc26e69e64b18fd42d0503e51ac93106695} & {hemphilc} & updated brdd.c \\
+\hline {99f713e2da0d8159b39d2ef14b3038bde41dccdf} & {hemphilc} & updated brdd.c \\
+\hline {1faba4e66bf93b4e598c9a588a8c6299badcca74} & {hemphilc} & updated brdd.c \\
+\hline {30a5b980a6e56e10143c6f20c3e71e774b686f4a} & {hemphilc} & updated brdd.c \\
+\hline {54a20a9aae427506019af41934ddcff9c04ab94e} & {hemphilc} & updated brdd.c \\
+\hline {5cf48dfce0bb8a3d3434000a708457234c6232a4} & {hemphilc} & updated brdd.c \\
+\hline {04bb829036ecba8c4f6a94e60a08d15499eb5f97} & {hemphilc} & updated brdd.c \\
+\hline {43c85c5af4eb99100d6fadeb5290dd95ed22efe8} & {hemphilc} & updated brdd.c \\
+\hline {828f30e84a5ef0e64bea56beea01d48e73b62ee6} & {hemphilc} & updated brdd.c \\
+\hline {3cb116abb3ca3d4a192e596c2c6869177a7c8318} & {hemphilc} & updated brdd.c \\
+\hline {f9e408f8d026ff1214a67ac8bc3773c0b8209964} & {hemphilc} & updated brdd.c \\
+\hline {dca0e6b100510834a5653ce83683e37625b944aa} & {hemphilc} & updated brdd.c \\
+\hline {cf25a24d297c63e961c23b58cf43d8cc4a8a9c5c} & {hemphilc} & updated brdd.c \\
+\hline {6c85e7f43f0a35cec40053ab0d5df2226b22d8c2} & {hemphilc} & updated brdd.c \\
+\hline {1fc415060be56a71a798bc9c9074418bbc20fcc9} & {hemphilc} & updated brdd.c \\
+\hline {dda201c6c8d6a0305d98457d5275bb2189c62cc4} & {yeja94} & updated brdd.c \\
+\hline {fac95462a934d795a9d76d97b3dae03306b98374} & {yeja94} & updated brdd.c \\
 
 \end{tabular}
-
+\newpage
 \section{Work Log}
 % List out the work by each member. Briefly state the date and description of the work. 
 \begin{itemize}
 
-\item \textit{10/15/2017}\\ Corey created a project 2 folder, made README, .c and .tex files inside the folder. \\
-\item \textit{10/17/2017}\\ Jason and Corey doing research on C-LOOK I/O Scheduler. \\
-\item \textit{10/18/2017}\\ Jason started to create functions that might work in sstf-iosched.c. \\ 
-\item \textit{10/20/2017}\\ Corey updated the README file and copied the functions from noo-iosched.c to sstf-iosched.c. \\
-\item \textit{10/21/2017}\\ Jason started to modify the program and worked on dispatcher and addrequest functions. \\
-\item \textit{10/21/2017}\\ Corey updated and debug the program. Also, he started to do research on patching in kernel. \\ 
-\item \textit{10/22/2017}\\ Corey updated Latex and started adding more print statement into the program for testing purposes. \\
-\item \textit{10/28/2017}\\ Corey researched on qemu flags and edited the request function along with some logic syntax. \\
-\item \textit{10/29/2017}\\ Corey updated the makefile, created a tester.sh and patch for our program along with modifying the program. Also, a text file with testing result was added. \\
-\item \textit{10/30/2017}\\ Corey and Jason review the files in GitHub. \\
+\item \textit{11/04/2017}\\ Corey created a project 3 folder, sbd.c and started researching on the assignment. \\
+\item \textit{11/05/2017}\\ Jason research on Block Devices. \\
+\item \textit{11/06/2017}\\ Corey created sbull.c and started to prototyping \\ 
+\item \textit{11/07/2017}\\ Corey updated brdd.c \\
+\item \textit{11/11/2017}\\ Jason and Corey started to modify the program and made the makefile. \\
+\item \textit{11/12/2017}\\ Corey updated and debug the program. Also, he created the Latex file for the assignment. \\ 
+\item \textit{11/14/2017}\\ Jason and Corey started to modifying the program to meet the assignment's requirement. We had many issues moving the modules to the VMs \\
+\item \textit{11/15/2017}\\ Jason and Corey continued to fix the program but still had problems with bugs and issues. We changed the base code to use sbd.c implementation and added all of our working code to it. Continued ongoing troubleshooting. \\
 \end{itemize} 
 
 \end{document}
