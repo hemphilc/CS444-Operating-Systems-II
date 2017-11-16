@@ -93,6 +93,9 @@ static struct brdd_device {
  */
 static void brdd_transfer(struct brdd_device *dev, sector_t sector,
 		unsigned long nsect, char *buffer, int write) {
+	uint8_t *origin;
+	uint8_t *target;
+	unsigned long i;
 	unsigned long offset = sector * logical_block_size;
 	unsigned long nbytes = nsect * logical_block_size;
 
@@ -257,7 +260,6 @@ static void __exit brdd_exit(void)
 	crypto_free_cipher(tfm);
 	unregister_blkdev(major_num, "brdd");
 	blk_cleanup_queue(Queue);
-	vfree(Device.data);
 }
 
 module_init(brdd_init);
