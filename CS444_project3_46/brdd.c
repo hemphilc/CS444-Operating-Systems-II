@@ -38,13 +38,13 @@
 #include <linux/genhd.h>
 #include <linux/blkdev.h>
 #include <linux/hdreg.h>
-#include <linux/crypto>
+#include <linux/crypto.h>
 
 MODULE_LICENSE("Dual BSD/GPL");
 static char *Version = "1.4";
 
 
-static struct cypto_cipher *tfm; // Crypto cipher structure
+static struct crypto_cipher *tfm; // Crypto cipher structure
 static char* key = "1234567890123456"; // Crypto key
 module_param(key, charp, 0);
 static int major_num = 0;
