@@ -1,12 +1,4 @@
 /*
- * Jason Ye - yeja@oregonstate.edu
- * Corey Hemphill - hemphilc@oregonstate.edu
- * CS444 - Project 4 - The SLOB SLAB
- * November 26, 2017
- * slob.c
-*/
-
-/*
  * SLOB Allocator: Simple List Of Blocks
  *
  * Matt Mackall <mpm@selenic.com> 12/30/03
@@ -99,6 +91,13 @@ struct slob_block {
 	slobidx_t units;
 };
 typedef struct slob_block slob_t;
+
+/*
+ * For SLOB best-fit algorithm
+ */
+#define USE_BEST_FIT 1
+unsigned long mem_used = 0;
+unsigned long mem_claimed = 0;
 
 /*
  * All partially free slob pages go on these lists.
@@ -226,47 +225,123 @@ static void *slob_page_alloc(struct page *sp, size_t size, int align)
 {
 	slob_t *prev, *cur, *aligned = NULL;
 	int delta = 0, units = SLOB_UNITS(size);
+	
+	/*
+	 * Use the best-fit algorithm
+	 */
+	if (USE_BEST_FIT == 1) {
+		slob_t *best_fit_prev = NULL;
+		slob_t *best_fit_cur = NULL;
+		slob_t *best_fit_aligned = NULL;
+		int best_fit_delta = 0;
+		slobidx_t best_fit_diff = 0;
+		
+		for (prev = NULL, cur = sp->free; ; prev = cur, cur = slob_next(cur)) {
+			slobidx_t avail = slob_units(cur);
 
-	for (prev = NULL, cur = sp->freelist; ; prev = cur, cur = slob_next(cur)) {
-		slobidx_t avail = slob_units(cur);
+			if (align) {
+				aligned = (slob_t *)ALIGN((unsigned long)cur, align);
+				delta = aligned - cur;
+			}
+			if (avail >= units + delta) { /* room enough? */
+				/*
+				 * Best fit finds the smallest space which fits the required amount available.
+				 * If our best fit current node has not yet been found, or if we've found a 
+				 * lesser difference, we set our best fit variables to the new current node
+				 */
+				if (best_fit_cur == NULL || (avail - (units + delta)) < best_fit_diff) {
+					best_fit_prev = prev;
+					best_fit_cur = cur;
+					best_fit_aligned = aligned;
+					best_fit_delta = delta;
+					best_fit_diff = avail - (units + delta);
+				}
+			}
+			/*
+			 * Use the slob_last function to locate the end of the SLOB
+			 */
+			if (slob_last(cur)) {
+				if (best_fit_cur != NULL) {
+					slob_t *best_fit_next = NULL;
+					slobidx_t best_fit_avail = slob_units(best_fit_cur);
 
-		if (align) {
-			aligned = (slob_t *)ALIGN((unsigned long)cur, align);
-			delta = aligned - cur;
-		}
-		if (avail >= units + delta) { /* room enough? */
-			slob_t *next;
+					if (best_fit_delta) { /* need to fragment head to align? */
+						best_fit_next = slob_next(best_fit_cur);
+						set_slob(best_fit_aligned, best_fit_avail - best_fit_delta, best_fit_next);
+						set_slob(best_fit_cur, best_fit_delta, best_fit_aligned);
+						best_fit_prev = best_fit_cur;
+						best_fit_cur = best_fit_aligned;
+						best_fit_avail = slob_units(best_fit_cur);
+					}
 
-			if (delta) { /* need to fragment head to align? */
+					best_fit_next = slob_next(best_fit_cur);
+					if (best_fit_avail == units) { /* exact fit? unlink. */
+						if (best_fit_prev)
+							set_slob(best_fit_prev, slob_units(best_fit_prev), best_fit_next);
+						else
+							sp->freelist = best_fit_next;
+					} else { /* fragment */
+						if (best_fit_prev)
+							set_slob(best_fit_prev, slob_units(best_fit_prev), best_fit_cur + units);
+						else
+							sp->freelist = best_fit_cur + units;
+						set_slob(best_fit_cur + units, best_fit_avail - units, best_fit_next);
+					}
+
+					sp->units -= units;
+					if (!sp->units)
+						clear_slob_page_free(sp);
+					return best_fit_cur;
+				}
+				return NULL;
+			}
+		}	
+	}
+	/*
+	 * Use the original first-fit algorithm
+	 */
+	else {
+		for (prev = NULL, cur = sp->freelist; ; prev = cur, cur = slob_next(cur)) {
+			slobidx_t avail = slob_units(cur);
+
+			if (align) {
+				aligned = (slob_t *)ALIGN((unsigned long)cur, align);
+				delta = aligned - cur;
+			}
+			if (avail >= units + delta) { /* room enough? */
+				slob_t *next;
+
+				if (delta) { /* need to fragment head to align? */
+					next = slob_next(cur);
+					set_slob(aligned, avail - delta, next);
+					set_slob(cur, delta, aligned);
+					prev = cur;
+					cur = aligned;
+					avail = slob_units(cur);
+				}
+
 				next = slob_next(cur);
-				set_slob(aligned, avail - delta, next);
-				set_slob(cur, delta, aligned);
-				prev = cur;
-				cur = aligned;
-				avail = slob_units(cur);
-			}
+				if (avail == units) { /* exact fit? unlink. */
+					if (prev)
+						set_slob(prev, slob_units(prev), next);
+					else
+						sp->freelist = next;
+				} else { /* fragment */
+					if (prev)
+						set_slob(prev, slob_units(prev), cur + units);
+					else
+						sp->freelist = cur + units;
+					set_slob(cur + units, avail - units, next);
+				}
 
-			next = slob_next(cur);
-			if (avail == units) { /* exact fit? unlink. */
-				if (prev)
-					set_slob(prev, slob_units(prev), next);
-				else
-					sp->freelist = next;
-			} else { /* fragment */
-				if (prev)
-					set_slob(prev, slob_units(prev), cur + units);
-				else
-					sp->freelist = cur + units;
-				set_slob(cur + units, avail - units, next);
+				sp->units -= units;
+				if (!sp->units)
+					clear_slob_page_free(sp);
+				return cur;
 			}
-
-			sp->units -= units;
-			if (!sp->units)
-				clear_slob_page_free(sp);
-			return cur;
+			if (slob_last(cur))
+				return NULL;
 		}
-		if (slob_last(cur))
-			return NULL;
 	}
 }
 
