@@ -246,7 +246,7 @@ static void *slob_page_alloc(struct page *sp, size_t size, int align)
 		
 		printk("slob: using best-fit algorithm");
 		
-		for (prev = NULL, cur = sp->free; ; prev = cur, cur = slob_next(cur)) {
+		for (prev = NULL, cur = sp->freelist; ; prev = cur, cur = slob_next(cur)) {
 			slobidx_t avail = slob_units(cur);
 
 			if (align) {
