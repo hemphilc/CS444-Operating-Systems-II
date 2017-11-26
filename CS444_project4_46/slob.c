@@ -1,4 +1,12 @@
 /*
+ * Jason Ye - yeja@oregonstate.edu
+ * Corey Hemphill - hemphilc@oregonstate.edu
+ * CS444 - Project 4 - The SLOB SLAB
+ * November 26, 2017
+ * slob.c
+*/
+
+/*
  * SLOB Allocator: Simple List Of Blocks
  *
  * Matt Mackall <mpm@selenic.com> 12/30/03
