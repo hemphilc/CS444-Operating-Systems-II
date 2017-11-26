@@ -1,7 +1,7 @@
 /*
  * Jason Ye - yeja@oregonstate.edu
  * Corey Hemphill - hemphilc@oregonstate.edu
- * CS444 - Concurrency 3 
+ * CS444 - Concurrency 3 part 2
  * November 25, 2017
 */
 
