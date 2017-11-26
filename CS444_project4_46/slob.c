@@ -103,7 +103,7 @@ typedef struct slob_block slob_t;
 /*
  * For SLOB best-fit algorithm
  */
-#define USE_BEST_FIT 0
+#define USE_BEST_FIT 1
 unsigned long mem_used = 0;
 unsigned long mem_claimed = 0;
 
