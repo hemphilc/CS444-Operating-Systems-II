@@ -243,9 +243,7 @@ static void *slob_page_alloc(struct page *sp, size_t size, int align)
 		slob_t *best_fit_aligned = NULL;
 		int best_fit_delta = 0;
 		slobidx_t best_fit_diff = 0;
-		
-		printk("slob: using best-fit algorithm\n");
-		
+
 		for (prev = NULL, cur = sp->freelist; ; prev = cur, cur = slob_next(cur)) {
 			slobidx_t avail = slob_units(cur);
 
@@ -311,8 +309,6 @@ static void *slob_page_alloc(struct page *sp, size_t size, int align)
 	 * Use the original first-fit algorithm
 	 */
 	else {
-		printk("slob: using first-fit algorithm\n");
-		
 		for (prev = NULL, cur = sp->freelist; ; prev = cur, cur = slob_next(cur)) {
 			slobidx_t avail = slob_units(cur);
 
