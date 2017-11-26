@@ -255,7 +255,7 @@ static void *slob_page_alloc(struct page *sp, size_t size, int align)
 				/*
 				 * Best fit finds the smallest space which fits the required amount available.
 				 * If our best fit current node has not yet been found, or if we've found a 
-				 * lesser difference, we set our best fit variables to the new current node
+				 * lesser difference, we set our new best fit to the current node.
 				 */
 				if (best_fit_cur == NULL || (avail - (units + delta)) < best_fit_diff) {
 					best_fit_prev = prev;
@@ -391,6 +391,8 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		b = slob_page_alloc(sp, size, align);
 		if (!b)
 			continue;
+		else
+			mem_used = mem_used + size; // Keep track of the memory we've used
 
 		/* Improve fragment distribution and reduce our average
 		 * search time by starting our next search here. (see
@@ -419,6 +421,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		b = slob_page_alloc(sp, size, align);
 		BUG_ON(!b);
 		spin_unlock_irqrestore(&slob_lock, flags);
+		mem_claimed = mem_claimed + PAGE_SIZE; // Keep track of the memory we've claimed
 	}
 	if (unlikely((gfp & __GFP_ZERO) && b))
 		memset(b, 0, size);
@@ -442,10 +445,13 @@ static void slob_free(void *block, int size)
 
 	sp = virt_to_page(block);
 	units = SLOB_UNITS(size);
+	mem_used = mem_used - size; // Decrement used memory by amount freed
 
 	spin_lock_irqsave(&slob_lock, flags);
 
 	if (sp->units + units == SLOB_UNITS(PAGE_SIZE)) {
+		mem_claimed = mem_claimed - PAGE_SIZE; // Decrement by total page size freed
+		
 		/* Go directly to page allocator. Do not pass slob allocator */
 		if (slob_page_free(sp))
 			clear_slob_page_free(sp);
