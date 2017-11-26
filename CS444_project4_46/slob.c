@@ -742,10 +742,14 @@ void __init kmem_cache_init_late(void)
  * System calls for using best-fit algorithm
  */
 asmlinkage long sys_get_slob_amt_claimed(void) {
+	printk(KERN_ALERT "sys_get_slob_amt_claimed");
+	
 	return mem_claimed;
 }
 
 
 asmlinkage long sys_get_slob_amt_free(void) {
+	printk(KERN_ALERT "sys_get_slob_amt_free");
+	
 	return mem_claimed - mem_used;
 }
