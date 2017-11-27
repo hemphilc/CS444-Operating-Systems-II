@@ -9,7 +9,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#define _GNU_SOURCE
 #include <unistd.h>
+#include <sys/syscall.h>
+#include <sys/types.h>
 
 /*
  * Added system calls for testing the best-fit algorithm
@@ -43,14 +46,16 @@ int main(int argc, char **argv) {
 	printf("Running %d frag tests...\n", num_tests);
 
 	for (i = 0; i < num_tests; i++) {
-		frag = (float)sys_get_slob_amt_free / (float)sys_get_slob_amt_claimed;
+		float mem_claimed = (float)sys_get_slob_amt_claimed;
+		float mem_free = (float)sys_get_slob_amt_free;
+		frag = mem_free / mem_claimed;
+		//frag = (float)sys_get_slob_amt_free / (float)sys_get_slob_amt_claimed;
 		
 		printf("************TEST #%d************\n", i + 1);
 		printf("Fragmentation %: %f\n", frag * 100);
 		printf("Claimed Memory: %lu\n", sys_get_slob_amt_claimed);
 		printf("Free Memory: %lu\n", sys_get_slob_amt_free);
 		printf("********************************\n");
-		
 		sleep(1);
 	}
 }
