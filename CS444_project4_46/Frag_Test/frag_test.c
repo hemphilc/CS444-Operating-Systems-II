@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
 	int num_tests;
 	
 	if (argc > 2) {
-		perror("Usage: frag_test <# of test iterations>\n");
+		printf("Usage: frag_test <# of test iterations>\n");
 		exit(1);
 	}
 	else if (argc == 2) {
