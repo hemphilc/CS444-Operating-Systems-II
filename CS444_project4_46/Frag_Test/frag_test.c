@@ -50,6 +50,7 @@ int main(int argc, char **argv) {
 		printf("Claimed Memory: %lu\n", sys_get_slob_amt_claimed);
 		printf("Free Memory: %lu\n", sys_get_slob_amt_free);
 		printf("********************************\n");
+		
 		sleep(1);
 	}
 }
