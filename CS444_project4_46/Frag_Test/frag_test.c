@@ -11,6 +11,14 @@
 #include <string.h>
 #include <unistd.h>
 
+/*
+ * Added system calls for testing the best-fit algorithm
+ * implementation in slob.c. Added syscall declarations to
+ * the following files:
+ * - linux/arch/sh/include/uapi/asm/unistd_32.h
+ * - arch/x86/syscalls/syscall_32.tbl
+ * - include/linux/syscalls.h
+ */
 #define sys_get_slob_amt_claimed syscall(369)
 #define sys_get_slob_amt_free syscall(370)
 
@@ -37,8 +45,8 @@ int main(int argc, char **argv) {
 	for (i = 0; i < num_tests; i++) {
 		frag = (float)sys_get_slob_amt_free / (float)sys_get_slob_amt_claimed;
 		
-		printf("************TEST #%d************\n", i);
-		printf("Fragmentation %: %f\n", frag);
+		printf("************TEST #%d************\n", i + 1);
+		printf("Fragmentation %: %f\n", frag * 100);
 		printf("Claimed Memory: %lu\n", sys_get_slob_amt_claimed);
 		printf("Free Memory: %lu\n", sys_get_slob_amt_free);
 		printf("********************************\n");
