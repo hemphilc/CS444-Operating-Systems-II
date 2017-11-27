@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
 	int num_tests;
 	
 	if (argc > 2) {
-		printf("Usage: frag_test <# of test iterations>\n");
+		printf("Usage: frag_test <# of test iterations>\n\n");
 		exit(1);
 	}
 	else if (argc == 2) {
@@ -48,10 +48,11 @@ int main(int argc, char **argv) {
 	for (i = 0; i < num_tests; i++) {
 		frag = (float)sys_get_slob_amt_free / (float)sys_get_slob_amt_claimed;
 		
-		printf("************ TEST #%d ************\n", i + 1);
-		printf("Fragmentation %: %f\n", frag);
+		printf("\n************ TEST #%d ************\n", i + 1);
+		printf("Fragmentation: %%f\n", frag * 100);
 		printf("Claimed Memory: %lu\n", sys_get_slob_amt_claimed);
 		printf("Free Memory: %lu\n", sys_get_slob_amt_free);
-		sleep(5);
+		
+		sleep(10);
 	}
 }
