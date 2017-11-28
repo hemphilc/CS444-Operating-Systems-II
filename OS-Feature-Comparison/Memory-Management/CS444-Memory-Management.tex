@@ -76,7 +76,13 @@
 \newpage
 
 \section{Compare and Contrast OS Memory Management}
-\cite{MSWindows1}
+\noindent In the FreeBSD virtual memory system, every process is given its own private, protected 32 or 64-bit address space–depending on the CPU’s architecture. Address spaces are divided into three segments: text, data and stack. Generally speaking, in FreeBSD, address space tends to be less structured due to an inherent feature of the mmap system call. When system memory becomes scarce, FreeBSD uses swapping and demand paging in an effort to continue running processes. Demand paging is where the system manages a cache of recently used pages in physical memory, which allows quicker memory access for active processes \cite{FreeBSD1}\cite{FreeBSD2}.\\
+
+\noindent \cite{MSWindows1}\\
+\cite{MSWindows2}\\
+\cite{MSWindows3}\\
+\cite{Linux1}\\
+\cite{Linux2}\\
 
 
 %\lstinputlisting[language=C]{Win32thread.c}
