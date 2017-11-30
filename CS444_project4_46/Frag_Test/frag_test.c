@@ -18,7 +18,7 @@
  * Added system calls for testing the best-fit algorithm
  * implementation in slob.c. Added syscall declarations to
  * the following files:
- * - linux/arch/sh/include/uapi/asm/unistd_32.h
+ * - arch/sh/include/uapi/asm/unistd_32.h
  * - arch/x86/syscalls/syscall_32.tbl
  * - include/linux/syscalls.h
  */
