@@ -1,6 +1,6 @@
 diff -rupN linux-yocto-3.19/mm/slob.c linux-yocto-3.19_dev/mm/slob.c
 --- linux-yocto-3.19/mm/slob.c	2017-10-04 16:09:19.934772042 -0700
-+++ linux-yocto-3.19_dev/mm/slob.c	2017-11-30 23:47:21.148187741 -0800
++++ linux-yocto-3.19_dev/mm/slob.c	2017-12-01 00:20:34.469282716 -0800
 @@ -1,4 +1,12 @@
  /*
 + * Jason Ye - yeja@oregonstate.edu
@@ -203,7 +203,7 @@ diff -rupN linux-yocto-3.19/mm/slob.c linux-yocto-3.19_dev/mm/slob.c
 +/*
 + * System call for testing best-fit algorithm
 + */
-+asmlinkage long sys_get_slob_amt_claimed(void) {
++asmlinkage long sys_get_slob_amt_total(void) {
 +	long num_pages = 0;
 +	long mem_total = 0;
 +	struct list_head *slob_list;
@@ -271,7 +271,7 @@ diff -rupN linux-yocto-3.19/mm/slob.c linux-yocto-3.19_dev/mm/slob.c
 
 diff -rupN linux-yocto-3.19/arch/sh/include/uapi/asm/unistd_32.h linux-yocto-3.19_dev/arch/sh/include/uapi/asm/unistd_32.h
 --- linux-yocto-3.19/arch/sh/include/uapi/asm/unistd_32.h	2017-10-04 16:09:15.670698935 -0700
-+++ linux-yocto-3.19_dev/arch/sh/include/uapi/asm/unistd_32.h	2017-11-30 20:24:07.370689803 -0800
++++ linux-yocto-3.19_dev/arch/sh/include/uapi/asm/unistd_32.h	2017-12-01 00:21:17.179030100 -0800
 @@ -381,6 +381,13 @@
  #define __NR_kcmp		367
  #define __NR_finit_module	368
@@ -281,7 +281,7 @@ diff -rupN linux-yocto-3.19/arch/sh/include/uapi/asm/unistd_32.h linux-yocto-3.1
 + * For CS444_project4_46 -- Register
 + * syscalls for testing SLOB SLAB
 + */
-+#define __NR_sys_get_slob_amt_claimed	369
++#define __NR_sys_get_slob_amt_total	369
 +#define __NR_sys_get_slob_amt_free 	370
 +
 +#define NR_syscalls 371
@@ -290,23 +290,23 @@ diff -rupN linux-yocto-3.19/arch/sh/include/uapi/asm/unistd_32.h linux-yocto-3.1
 
 diff -rupN linux-yocto-3.19/arch/x86/syscalls/syscall_32.tbl linux-yocto-3.19_dev/arch/x86/syscalls/syscall_32.tbl
 --- linux-yocto-3.19/arch/x86/syscalls/syscall_32.tbl	2017-10-04 16:09:15.965703993 -0700
-+++ linux-yocto-3.19_dev/arch/x86/syscalls/syscall_32.tbl	2017-11-26 14:32:34.139483531 -0800
++++ linux-yocto-3.19_dev/arch/x86/syscalls/syscall_32.tbl	2017-12-01 00:22:06.289886995 -0800
 @@ -365,3 +365,5 @@
  356	i386	memfd_create		sys_memfd_create
  357	i386	bpf			sys_bpf
  358	i386	execveat		sys_execveat			stub32_execveat
-+369	i386	mem_claimed		sys_get_slob_amt_claimed
++369	i386	mem_total		sys_get_slob_amt_total
 +370	i386	mem_used		sys_get_slob_amt_free
 
 diff -rupN linux-yocto-3.19/include/linux/syscalls.h linux-yocto-3.19_dev/include/linux/syscalls.h
 --- linux-yocto-3.19/include/linux/syscalls.h	2017-10-04 16:09:19.631766848 -0700
-+++ linux-yocto-3.19_dev/include/linux/syscalls.h	2017-11-26 14:35:42.999895918 -0800
++++ linux-yocto-3.19_dev/include/linux/syscalls.h	2017-12-01 00:22:53.536711367 -0800
 @@ -882,4 +882,8 @@ asmlinkage long sys_execveat(int dfd, co
  			const char __user *const __user *argv,
  			const char __user *const __user *envp, int flags);
  
 +/* CS444_project4_46 -- SLOB SLAB syscalls */
-+asmlinkage long sys_get_slob_amt_claimed(void);
++asmlinkage long sys_get_slob_amt_total(void);
 +asmlinkage long sys_get_slob_amt_free(void);
 +
  #endif
