@@ -733,7 +733,7 @@ void __init kmem_cache_init_late(void)
 /*
  * System call for testing best-fit algorithm
  */
-asmlinkage long sys_get_slob_amt_claimed(void) {
+asmlinkage long sys_get_slob_amt_total(void) {
 	long num_pages = 0;
 	long mem_total = 0;
 	struct list_head *slob_list;
@@ -761,7 +761,7 @@ asmlinkage long sys_get_slob_amt_claimed(void) {
 
 	mem_total = num_pages * SLOB_UNITS(PAGE_SIZE);
 	
-	printk(KERN_ALERT "sys_get_slob_amt_claimed %ld\n", mem_total);
+	printk(KERN_ALERT "sys_get_slob_amt_total %ld\n", mem_total);
 	
 	return mem_total;
 }
