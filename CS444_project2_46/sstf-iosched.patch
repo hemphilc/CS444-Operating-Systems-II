@@ -1,3 +1,4 @@
+diff -rupN linux-yocto-3.19/block/sstf-iosched.c linux-yocto-3.19_dev/block/sstf-iosched.c
 --- /scratch/fall2017/46/kernel/linux-yocto-3.19/block/sstf-iosched.c	2017-10-21 21:58:56.790479828 -0700
 +++ /scratch/fall2017/46/kernel/linux-yocto-3.19_dev/block/sstf-iosched.c	2017-10-29 21:32:43.398668776 -0700
 @@ -0,0 +1,225 @@
@@ -227,7 +228,7 @@
 +MODULE_LICENSE("GPL");
 +MODULE_DESCRIPTION("sstf IO scheduler");
 
-
+diff -rupN linux-yocto-3.19/block/Kconfig.iosched linux-yocto-3.19_dev/block/Kconfig.iosched
 --- /scratch/fall2017/46/kernel/linux-yocto-3.19/block/Kconfig.iosched	2017-10-04 16:09:16.002704627 -0700
 +++ /scratch/fall2017/46/kernel/linux-yocto-3.19_dev/block/Kconfig.iosched	2017-10-29 16:06:54.298933363 -0700
 @@ -2,6 +2,14 @@ if BLOCK
@@ -273,7 +274,7 @@
  
  endif
 
-
+diff -rupN linux-yocto-3.19/block/Makefile linux-yocto-3.19_dev/block/Makefile
 --- /scratch/fall2017/46/kernel/linux-yocto-3.19/block/Makefile	2017-10-22 15:33:41.178461000 -0700
 +++ /scratch/fall2017/46/kernel/linux-yocto-3.19_dev/block/Makefile	2017-10-29 13:39:02.733993159 -0700
 @@ -18,7 +18,7 @@ obj-$(CONFIG_BLK_DEV_THROTTLING)	+= blk-
