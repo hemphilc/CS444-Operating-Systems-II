@@ -231,7 +231,7 @@ diff -rupN linux-yocto-3.19/mm/slob.c linux-yocto-3.19_dev/mm/slob.c
 +
 +	mem_total = num_pages * SLOB_UNITS(PAGE_SIZE);
 +	
-+	printk(KERN_ALERT "sys_get_slob_amt_claimed %ld\n", mem_total);
++	printk(KERN_ALERT "sys_get_slob_amt_total %ld\n", mem_total);
 +	
 +	return mem_total;
 +}
