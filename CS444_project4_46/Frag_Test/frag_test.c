@@ -51,8 +51,8 @@ int main(int argc, char **argv) {
 		sleep(10);
 		
 		printf("\n************ TEST #%d ************\n", i + 1);
-		printf("Fragmentation: %f%\n", (frag * 100));
-		printf("Claimed Memory: %lu\n", sys_get_slob_amt_claimed);
+		printf("Fragmentation: %f\n", frag);
+		printf("Used Memory: %lu\n", sys_get_slob_amt_claimed);
 		printf("Free Memory: %lu\n", sys_get_slob_amt_free);
 	}
 }
