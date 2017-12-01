@@ -735,7 +735,7 @@ void __init kmem_cache_init_late(void)
  */
 asmlinkage long sys_get_slob_amt_claimed(void) {
 	long num_pages = 0;
-	long total = 0;
+	long mem_total = 0;
 	struct list_head *slob_list;
 	struct page *sp;
 	unsigned long flags;
@@ -759,11 +759,11 @@ asmlinkage long sys_get_slob_amt_claimed(void) {
 
 	spin_unlock_irqrestore(&slob_lock, flags);
 
-	total = num_pages * SLOB_UNITS(PAGE_SIZE);
+	mem_total = num_pages * SLOB_UNITS(PAGE_SIZE);
 	
-	printk(KERN_ALERT "sys_get_slob_amt_claimed %ld\n", total);
+	printk(KERN_ALERT "sys_get_slob_amt_claimed %ld\n", mem_total);
 	
-	return total;
+	return mem_total;
 }
 
 /*

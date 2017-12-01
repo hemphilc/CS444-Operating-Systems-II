@@ -10,51 +10,51 @@
 Running 10 frag tests...
 
 ************ TEST #1 ************
-Fragmentation: 0.986924
-Used Memory: 11075584
-Free Memory: 10932232
+Fragmentation: 0.087984
+Free Memory: 459696
+Total Memory: 5218304
 
 ************ TEST #2 ************
-Fragmentation: 0.987056
-Used Memory: 11075584
-Free Memory: 10932232
+Fragmentation: 0.088093
+Free Memory: 459696
+Total Memory: 5218304
 
 ************ TEST #3 ************
-Fragmentation: 0.987056
-Used Memory: 11075584
-Free Memory: 10936956
+Fragmentation: 0.088093
+Free Memory: 461802
+Total Memory: 5218304
 
 ************ TEST #4 ************
-Fragmentation: 0.987483
-Used Memory: 11075584
-Free Memory: 10936956
+Fragmentation: 0.088497
+Free Memory: 461802
+Total Memory: 5218304
 
 ************ TEST #5 ************
-Fragmentation: 0.987483
-Used Memory: 11075584
-Free Memory: 10936956
+Fragmentation: 0.088497
+Free Memory: 461802
+Total Memory: 5218304
 
 ************ TEST #6 ************
-Fragmentation: 0.987483
-Used Memory: 11075584
-Free Memory: 10937240
+Fragmentation: 0.088497
+Free Memory: 461944
+Total Memory: 5218304
 
 ************ TEST #7 ************
-Fragmentation: 0.987509
-Used Memory: 11075584
-Free Memory: 10937240
+Fragmentation: 0.088495
+Free Memory: 461792
+Total Memory: 5218304
 
 ************ TEST #8 ************
-Fragmentation: 0.987509
-Used Memory: 11075584
-Free Memory: 10937240
+Fragmentation: 0.088495
+Free Memory: 461792
+Total Memory: 5218304
 
 ************ TEST #9 ************
-Fragmentation: 0.987509
-Used Memory: 11075584
-Free Memory: 10937240
+Fragmentation: 0.088495
+Free Memory: 461792
+Total Memory: 5218304
 
 ************ TEST #10 ************
-Fragmentation: 0.987509
-Used Memory: 11075584
-Free Memory: 10937240
+Fragmentation: 0.088495
+Free Memory: 461792
+Total Memory: 5218304

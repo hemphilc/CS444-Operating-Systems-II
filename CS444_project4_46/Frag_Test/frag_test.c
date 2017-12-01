@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
 		
 		printf("\n************ TEST #%d ************\n", i + 1);
 		printf("Fragmentation: %f\n", frag);
-		printf("Used Memory: %lu\n", sys_get_slob_amt_claimed);
 		printf("Free Memory: %lu\n", sys_get_slob_amt_free);
+		printf("Total Memory: %lu\n", sys_get_slob_amt_claimed);
 	}
 }
