@@ -104,8 +104,6 @@ typedef struct slob_block slob_t;
  * For SLOB best-fit algorithm
  */
 #define USE_BEST_FIT 1
-unsigned long mem_used = 0;
-unsigned long mem_claimed = 0;
 
 /*
  * All partially free slob pages go on these lists.
@@ -392,8 +390,6 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		if (!b)
 			continue;
 		else
-			mem_used = mem_used + size; // Keep track of the memory we've used
-
 		/* Improve fragment distribution and reduce our average
 		 * search time by starting our next search here. (see
 		 * Knuth vol 1, sec 2.5, pg 449) */
@@ -421,7 +417,6 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		b = slob_page_alloc(sp, size, align);
 		BUG_ON(!b);
 		spin_unlock_irqrestore(&slob_lock, flags);
-		mem_claimed = mem_claimed + PAGE_SIZE; // Keep track of the memory we've claimed
 	}
 	if (unlikely((gfp & __GFP_ZERO) && b))
 		memset(b, 0, size);
@@ -445,13 +440,10 @@ static void slob_free(void *block, int size)
 
 	sp = virt_to_page(block);
 	units = SLOB_UNITS(size);
-	mem_used = mem_used - size; // Decrement used memory by amount freed
 
 	spin_lock_irqsave(&slob_lock, flags);
 
 	if (sp->units + units == SLOB_UNITS(PAGE_SIZE)) {
-		mem_claimed = mem_claimed - PAGE_SIZE; // Decrement by total page size freed
-		
 		/* Go directly to page allocator. Do not pass slob allocator */
 		if (slob_page_free(sp))
 			clear_slob_page_free(sp);
@@ -739,17 +731,69 @@ void __init kmem_cache_init_late(void)
 }
 
 /*
- * System calls for using best-fit algorithm
+ * System call for testing best-fit algorithm
  */
 asmlinkage long sys_get_slob_amt_claimed(void) {
+	long num_pages = 0;
+	struct list_head *slob_list;
+	struct page *sp;
+	unsigned long flags;
+
+	spin_lock_irqsave(&slob_lock, flags);
+
+	slob_list = &free_slob_small;
+	list_for_each_entry(sp, slob_list, list) {
+		num_pages++;
+	}
+
+	slob_list = &free_slob_medium;
+	list_for_each_entry(sp, slob_list, list) {
+		num_pages++;
+	}
+
+	slob_list = &free_slob_large;
+	list_for_each_entry(sp, slob_list, list) {
+		num_pages++;
+	}
+
+	spin_unlock_irqrestore(&slob_lock, flags);
+
+	return num_pages * SLOB_UNITS(PAGE_SIZE);
+	
 	printk(KERN_ALERT "sys_get_slob_amt_claimed");
 	
-	return mem_claimed;
+	return num_pages * SLOB_UNITS(PAGE_SIZE);
 }
 
-
+/*
+ * System call for testing best-fit algorithm
+ */
 asmlinkage long sys_get_slob_amt_free(void) {
-	printk(KERN_ALERT "sys_get_slob_amt_free");
+	long mem_free = 0;
+	struct list_head *slob_list;
+	struct page *sp;
+	unsigned long flags;
+
+	spin_lock_irqsave(&slob_lock, flags);
+
+	slob_list = &free_slob_small;
+	list_for_each_entry(sp, slob_list, list) {
+		mem_free += sp->units;
+	}
+
+	slob_list = &free_slob_medium;
+	list_for_each_entry(sp, slob_list, list) {
+		mem_free += sp->units;
+	}
+
+	slob_list = &free_slob_large;
+	list_for_each_entry(sp, slob_list, list) {
+		mem_free += sp->units;
+	}
+
+	spin_unlock_irqrestore(&slob_lock, flags);
 	
-	return mem_claimed - mem_used;
+	printk(KERN_ALERT "sys_get_slob_amt_free %ld", mem_free);
+	
+	return mem_free;
 }
