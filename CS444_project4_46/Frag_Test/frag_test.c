@@ -22,7 +22,7 @@
  * - arch/x86/syscalls/syscall_32.tbl
  * - include/linux/syscalls.h
  */
-#define sys_get_slob_amt_claimed syscall(369)
+#define sys_get_slob_amt_total syscall(369)
 #define sys_get_slob_amt_free syscall(370)
 
 #define DEF_NUM_TESTS 10
@@ -46,13 +46,13 @@ int main(int argc, char **argv) {
 	printf("Running %d frag tests...\n", num_tests);
 
 	for (i = 0; i < num_tests; i++) {
-		frag = (float)sys_get_slob_amt_free / (float)sys_get_slob_amt_claimed;
+		frag = (float)sys_get_slob_amt_free / (float)sys_get_slob_amt_total;
 		
 		sleep(10);
 		
 		printf("\n************ TEST #%d ************\n", i + 1);
 		printf("Fragmentation: %f\n", frag);
 		printf("Free Memory: %lu\n", sys_get_slob_amt_free);
-		printf("Total Memory: %lu\n", sys_get_slob_amt_claimed);
+		printf("Total Memory: %lu\n", sys_get_slob_amt_total);
 	}
 }
