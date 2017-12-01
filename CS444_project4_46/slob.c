@@ -735,6 +735,7 @@ void __init kmem_cache_init_late(void)
  */
 asmlinkage long sys_get_slob_amt_claimed(void) {
 	long num_pages = 0;
+	long total = 0;
 	struct list_head *slob_list;
 	struct page *sp;
 	unsigned long flags;
@@ -742,27 +743,27 @@ asmlinkage long sys_get_slob_amt_claimed(void) {
 	spin_lock_irqsave(&slob_lock, flags);
 
 	slob_list = &free_slob_small;
-	list_for_each_entry(sp, slob_list, list) {
+	list_for_each_entry(sp, slob_list, lru) {
 		num_pages++;
 	}
 
 	slob_list = &free_slob_medium;
-	list_for_each_entry(sp, slob_list, list) {
+	list_for_each_entry(sp, slob_list, lru) {
 		num_pages++;
 	}
 
 	slob_list = &free_slob_large;
-	list_for_each_entry(sp, slob_list, list) {
+	list_for_each_entry(sp, slob_list, lru) {
 		num_pages++;
 	}
 
 	spin_unlock_irqrestore(&slob_lock, flags);
 
-	return num_pages * SLOB_UNITS(PAGE_SIZE);
+	total = num_pages * SLOB_UNITS(PAGE_SIZE);
 	
-	printk(KERN_ALERT "sys_get_slob_amt_claimed");
+	printk(KERN_ALERT "sys_get_slob_amt_claimed %ld\n", total);
 	
-	return num_pages * SLOB_UNITS(PAGE_SIZE);
+	return total;
 }
 
 /*
@@ -777,17 +778,17 @@ asmlinkage long sys_get_slob_amt_free(void) {
 	spin_lock_irqsave(&slob_lock, flags);
 
 	slob_list = &free_slob_small;
-	list_for_each_entry(sp, slob_list, list) {
+	list_for_each_entry(sp, slob_list, lru) {
 		mem_free += sp->units;
 	}
 
 	slob_list = &free_slob_medium;
-	list_for_each_entry(sp, slob_list, list) {
+	list_for_each_entry(sp, slob_list, lru) {
 		mem_free += sp->units;
 	}
 
 	slob_list = &free_slob_large;
-	list_for_each_entry(sp, slob_list, list) {
+	list_for_each_entry(sp, slob_list, lru) {
 		mem_free += sp->units;
 	}
 
