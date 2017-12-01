@@ -1,3 +1,4 @@
+diff -rupN linux-yocto-3.19/drivers/block/brdd.c linux-yocto-3.19_dev/drivers/block/brdd.c
 --- linux-yocto-3.19/drivers/block/brdd.c	2017-11-12 11:51:53.504252073 -0800
 +++ linux-yocto-3.19_dev/drivers/block/brdd.c	2017-11-15 20:23:24.763553902 -0800
 @@ -0,0 +1,266 @@
