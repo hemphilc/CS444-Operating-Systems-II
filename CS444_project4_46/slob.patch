@@ -1,0 +1,312 @@
+diff -rupN linux-yocto-3.19/mm/slob.c linux-yocto-3.19_dev/mm/slob.c
+--- linux-yocto-3.19/mm/slob.c	2017-10-04 16:09:19.934772042 -0700
++++ linux-yocto-3.19_dev/mm/slob.c	2017-11-30 23:47:21.148187741 -0800
+@@ -1,4 +1,12 @@
+ /*
++ * Jason Ye - yeja@oregonstate.edu
++ * Corey Hemphill - hemphilc@oregonstate.edu
++ * CS444 - Project 4 - The SLOB SLAB
++ * November 26, 2017
++ * slob.c
++ */
++
++/*
+  * SLOB Allocator: Simple List Of Blocks
+  *
+  * Matt Mackall <mpm@selenic.com> 12/30/03
+@@ -93,6 +101,11 @@ struct slob_block {
+ typedef struct slob_block slob_t;
+ 
+ /*
++ * For SLOB best-fit algorithm
++ */
++#define USE_BEST_FIT 1
++
++/*
+  * All partially free slob pages go on these lists.
+  */
+ #define SLOB_BREAK1 256
+@@ -218,47 +231,123 @@ static void *slob_page_alloc(struct page
+ {
+ 	slob_t *prev, *cur, *aligned = NULL;
+ 	int delta = 0, units = SLOB_UNITS(size);
++	
++	/*
++	 * Use the best-fit algorithm
++	 */
++	if (USE_BEST_FIT == 1) {
++		slob_t *best_fit_prev = NULL;
++		slob_t *best_fit_cur = NULL;
++		slob_t *best_fit_aligned = NULL;
++		int best_fit_delta = 0;
++		slobidx_t best_fit_diff = 0;
++
++		for (prev = NULL, cur = sp->freelist; ; prev = cur, cur = slob_next(cur)) {
++			slobidx_t avail = slob_units(cur);
++
++			if (align) {
++				aligned = (slob_t *)ALIGN((unsigned long)cur, align);
++				delta = aligned - cur;
++			}
++			if (avail >= units + delta) { /* room enough? */
++				/*
++				 * Best fit finds the smallest space which fits the required amount available.
++				 * If our best fit current node has not yet been found, or if we've found a 
++				 * lesser difference, we set our new best fit to the current node.
++				 */
++				if (best_fit_cur == NULL || (avail - (units + delta)) < best_fit_diff) {
++					best_fit_prev = prev;
++					best_fit_cur = cur;
++					best_fit_aligned = aligned;
++					best_fit_delta = delta;
++					best_fit_diff = avail - (units + delta);
++				}
++			}
++			/*
++			 * Use the slob_last function to locate the end of the SLOB
++			 */
++			if (slob_last(cur)) {
++				if (best_fit_cur != NULL) {
++					slob_t *best_fit_next = NULL;
++					slobidx_t best_fit_avail = slob_units(best_fit_cur);
++
++					if (best_fit_delta) { /* need to fragment head to align? */
++						best_fit_next = slob_next(best_fit_cur);
++						set_slob(best_fit_aligned, best_fit_avail - best_fit_delta, best_fit_next);
++						set_slob(best_fit_cur, best_fit_delta, best_fit_aligned);
++						best_fit_prev = best_fit_cur;
++						best_fit_cur = best_fit_aligned;
++						best_fit_avail = slob_units(best_fit_cur);
++					}
++
++					best_fit_next = slob_next(best_fit_cur);
++					if (best_fit_avail == units) { /* exact fit? unlink. */
++						if (best_fit_prev)
++							set_slob(best_fit_prev, slob_units(best_fit_prev), best_fit_next);
++						else
++							sp->freelist = best_fit_next;
++					} else { /* fragment */
++						if (best_fit_prev)
++							set_slob(best_fit_prev, slob_units(best_fit_prev), best_fit_cur + units);
++						else
++							sp->freelist = best_fit_cur + units;
++						set_slob(best_fit_cur + units, best_fit_avail - units, best_fit_next);
++					}
++
++					sp->units -= units;
++					if (!sp->units)
++						clear_slob_page_free(sp);
++					return best_fit_cur;
++				}
++				return NULL;
++			}
++		}	
++	}
++	/*
++	 * Use the original first-fit algorithm
++	 */
++	else {
++		for (prev = NULL, cur = sp->freelist; ; prev = cur, cur = slob_next(cur)) {
++			slobidx_t avail = slob_units(cur);
++
++			if (align) {
++				aligned = (slob_t *)ALIGN((unsigned long)cur, align);
++				delta = aligned - cur;
++			}
++			if (avail >= units + delta) { /* room enough? */
++				slob_t *next;
+ 
+-	for (prev = NULL, cur = sp->freelist; ; prev = cur, cur = slob_next(cur)) {
+-		slobidx_t avail = slob_units(cur);
+-
+-		if (align) {
+-			aligned = (slob_t *)ALIGN((unsigned long)cur, align);
+-			delta = aligned - cur;
+-		}
+-		if (avail >= units + delta) { /* room enough? */
+-			slob_t *next;
++				if (delta) { /* need to fragment head to align? */
++					next = slob_next(cur);
++					set_slob(aligned, avail - delta, next);
++					set_slob(cur, delta, aligned);
++					prev = cur;
++					cur = aligned;
++					avail = slob_units(cur);
++				}
+ 
+-			if (delta) { /* need to fragment head to align? */
+ 				next = slob_next(cur);
+-				set_slob(aligned, avail - delta, next);
+-				set_slob(cur, delta, aligned);
+-				prev = cur;
+-				cur = aligned;
+-				avail = slob_units(cur);
+-			}
+-
+-			next = slob_next(cur);
+-			if (avail == units) { /* exact fit? unlink. */
+-				if (prev)
+-					set_slob(prev, slob_units(prev), next);
+-				else
+-					sp->freelist = next;
+-			} else { /* fragment */
+-				if (prev)
+-					set_slob(prev, slob_units(prev), cur + units);
+-				else
+-					sp->freelist = cur + units;
+-				set_slob(cur + units, avail - units, next);
++				if (avail == units) { /* exact fit? unlink. */
++					if (prev)
++						set_slob(prev, slob_units(prev), next);
++					else
++						sp->freelist = next;
++				} else { /* fragment */
++					if (prev)
++						set_slob(prev, slob_units(prev), cur + units);
++					else
++						sp->freelist = cur + units;
++					set_slob(cur + units, avail - units, next);
++				}
++
++				sp->units -= units;
++				if (!sp->units)
++					clear_slob_page_free(sp);
++				return cur;
+ 			}
+-
+-			sp->units -= units;
+-			if (!sp->units)
+-				clear_slob_page_free(sp);
+-			return cur;
++			if (slob_last(cur))
++				return NULL;
+ 		}
+-		if (slob_last(cur))
+-			return NULL;
+ 	}
+ }
+ 
+@@ -300,7 +389,7 @@ static void *slob_alloc(size_t size, gfp
+ 		b = slob_page_alloc(sp, size, align);
+ 		if (!b)
+ 			continue;
+-
++		else
+ 		/* Improve fragment distribution and reduce our average
+ 		 * search time by starting our next search here. (see
+ 		 * Knuth vol 1, sec 2.5, pg 449) */
+@@ -640,3 +729,72 @@ void __init kmem_cache_init_late(void)
+ {
+ 	slab_state = FULL;
+ }
++
++/*
++ * System call for testing best-fit algorithm
++ */
++asmlinkage long sys_get_slob_amt_claimed(void) {
++	long num_pages = 0;
++	long mem_total = 0;
++	struct list_head *slob_list;
++	struct page *sp;
++	unsigned long flags;
++
++	spin_lock_irqsave(&slob_lock, flags);
++
++	slob_list = &free_slob_small;
++	list_for_each_entry(sp, slob_list, lru) {
++		num_pages++;
++	}
++
++	slob_list = &free_slob_medium;
++	list_for_each_entry(sp, slob_list, lru) {
++		num_pages++;
++	}
++
++	slob_list = &free_slob_large;
++	list_for_each_entry(sp, slob_list, lru) {
++		num_pages++;
++	}
++
++	spin_unlock_irqrestore(&slob_lock, flags);
++
++	mem_total = num_pages * SLOB_UNITS(PAGE_SIZE);
++	
++	printk(KERN_ALERT "sys_get_slob_amt_claimed %ld\n", mem_total);
++	
++	return mem_total;
++}
++
++/*
++ * System call for testing best-fit algorithm
++ */
++asmlinkage long sys_get_slob_amt_free(void) {
++	long mem_free = 0;
++	struct list_head *slob_list;
++	struct page *sp;
++	unsigned long flags;
++
++	spin_lock_irqsave(&slob_lock, flags);
++
++	slob_list = &free_slob_small;
++	list_for_each_entry(sp, slob_list, lru) {
++		mem_free += sp->units;
++	}
++
++	slob_list = &free_slob_medium;
++	list_for_each_entry(sp, slob_list, lru) {
++		mem_free += sp->units;
++	}
++
++	slob_list = &free_slob_large;
++	list_for_each_entry(sp, slob_list, lru) {
++		mem_free += sp->units;
++	}
++
++	spin_unlock_irqrestore(&slob_lock, flags);
++	
++	printk(KERN_ALERT "sys_get_slob_amt_free %ld\n", mem_free);
++	
++	return mem_free;
++}
+
+diff -rupN linux-yocto-3.19/arch/sh/include/uapi/asm/unistd_32.h linux-yocto-3.19_dev/arch/sh/include/uapi/asm/unistd_32.h
+--- linux-yocto-3.19/arch/sh/include/uapi/asm/unistd_32.h	2017-10-04 16:09:15.670698935 -0700
++++ linux-yocto-3.19_dev/arch/sh/include/uapi/asm/unistd_32.h	2017-11-30 20:24:07.370689803 -0800
+@@ -381,6 +381,13 @@
+ #define __NR_kcmp		367
+ #define __NR_finit_module	368
+ 
+-#define NR_syscalls 369
++/*
++ * For CS444_project4_46 -- Register
++ * syscalls for testing SLOB SLAB
++ */
++#define __NR_sys_get_slob_amt_claimed	369
++#define __NR_sys_get_slob_amt_free 	370
++
++#define NR_syscalls 371
+ 
+ #endif /* __ASM_SH_UNISTD_32_H */
+
+diff -rupN linux-yocto-3.19/arch/x86/syscalls/syscall_32.tbl linux-yocto-3.19_dev/arch/x86/syscalls/syscall_32.tbl
+--- linux-yocto-3.19/arch/x86/syscalls/syscall_32.tbl	2017-10-04 16:09:15.965703993 -0700
++++ linux-yocto-3.19_dev/arch/x86/syscalls/syscall_32.tbl	2017-11-26 14:32:34.139483531 -0800
+@@ -365,3 +365,5 @@
+ 356	i386	memfd_create		sys_memfd_create
+ 357	i386	bpf			sys_bpf
+ 358	i386	execveat		sys_execveat			stub32_execveat
++369	i386	mem_claimed		sys_get_slob_amt_claimed
++370	i386	mem_used		sys_get_slob_amt_free
+
+diff -rupN linux-yocto-3.19/include/linux/syscalls.h linux-yocto-3.19_dev/include/linux/syscalls.h
+--- linux-yocto-3.19/include/linux/syscalls.h	2017-10-04 16:09:19.631766848 -0700
++++ linux-yocto-3.19_dev/include/linux/syscalls.h	2017-11-26 14:35:42.999895918 -0800
+@@ -882,4 +882,8 @@ asmlinkage long sys_execveat(int dfd, co
+ 			const char __user *const __user *argv,
+ 			const char __user *const __user *envp, int flags);
+ 
++/* CS444_project4_46 -- SLOB SLAB syscalls */
++asmlinkage long sys_get_slob_amt_claimed(void);
++asmlinkage long sys_get_slob_amt_free(void);
++
+ #endif
