@@ -82,86 +82,50 @@
 
 \section{Answer to Each Question }
 \subsection{What do you think the main point of this assignment is}
-\noindent The main point of this assignment is to learn how to load and use modules in the Linux kernel. Furthermore, the assignment was meant to give us experience working with poorly documented code libraries such as crypto. In the real world, most code is at best documented in a very mediocre fashion. We created a RAM disk driver for the Linux kernel and implemented encryption/decryption of data when the device is being written to and read from. Also, device drivers are necessary to an operating system because they provide the ability to utilize a given system's hardware. These drivers are fundamental to how computers operate, and its extremely important to gain an understanding of what they're meant to do. In essence, a driver is simply a complex signal handler for a given piece of hardware.
-\\
+\noindent The main point of this assignment is to learn about SLOB algorithm. We approached the idea of SLOB implementation and tried to understand slob allocator, heaps, and blocks. Also, this assignment allow us to understand paging system within the Linux kernel. We got to practice on writing system calls inside the kernel. \\
 
 \subsection{How did you personally approach the problem? Design decisions, algorithm, etc.}
-\noindent First we began researching on how block drivers work and installation of modules. Using the LDD3 guideline, we were able to understand the concepts of how a kernel makes calls to the driver to process reads/writes on a given device. Corey was able to find a very useful guide on how to implement a block device driver using sbull.c, as well as sbd.c. Using the guide, and various crypto documentation pages, we were able to implement the encryption/decryption functions and apply our knowledge to run the program. As we are trying to run the program, we stumbled upon issues with the transfer function in the program. Our overall approach was to absorb some existing implementation of a block device driver, and modify it to use crypto functions. We simply added a cipher key and cipher initialization to the init function, and checked a condition in the transfer function to determine if we were reading data or writing data; if we are reading, we decrypt the data from the buffer, and if we are writing, we encrypt the data from the buffer.
-\\
+\noindent We took a look at slob.c provided in the mm directory, and read over the lectures on the topic. We simply took the program and modified it. Before implementation, we inspected the program to see how the first-fit and best-fit algorithm worked. \\
 
 \subsection{How did you ensure your solution was correct? Testing details, for instance.}
-\noindent For our testing, we used printk statements to ensure that the driver was encrypting and decrypting data properly when necessary. We also inserted print statements into the init and exit functions for verification. In addition, we wrote a script which returns the garbled text of the file. The script goes through a number of conditional statements which 'echo' out text, showing that the file encryption and decryption are working properly. In short, we load our module using insmod, verify its active using lsmod, then we use mkfs.ext2 /dev/brdd0 command to initialize a block ram device via the brdd0 disk in the /dev/ directory. We then use a script that goes back and forth reading and writing data to the new block ram device, and we echo the data when its being read/written. When we read, we expect the data to be decrypted so we can actually read it. When we write, we expect the data to be complete gibberish. Testing of this particular program is fairly straight forward.
+\noindent For testing, we have added system calls for testing the best-fit algorithm implementation in slob.c. We created a test program that allocate memory into buffers prints fragmentation and claimed/free memory.    
 \\
 
 \subsection{What did you learn?}
-\noindent For this assignment we gained experience working with a block device driver that encrypts/decrypts data when its being read/written respectively. We also learned how to install our own modules to a Linux kernel, which may be super useful in the future. In addition, we learned how to work with a poorly documented API, crypto. Seeing how most code libraries are not documented very well, practicing research and hunting down useful information is an extremely vital skill for an engineer to learn. Every bit of experience working in situations like this where knowledge is lacking will help to prepare us for working in the real world. Overall, this assignment provided a wealth of knowledge and experience that will be useful moving forward.
+\noindent For this assignment we gained experience working with system call within the kernel as well as finding fragmentation of the pages.  
+\\
 
 \section{Version Control Log}
 
 \begin{tabular}{l l l}
 
 \textbf{Detail SHA} & \textbf{Author} & \textbf{Description}\\
-\hline {ea4b4eecd525d5dfce18afd159eadb1d7f4efb1a} & hemphilc & Add files via upload  \\
-\hline {7a8d082e55ec6bd3c0d99d0496c77abec5962c0f} & hemphilc & Create sbd.c v1.0.0  \\
-\hline {04992fd7a7f074a64c6ca42a37a02c432b97329c} & hemphilc & Delete project3.c  \\
-\hline {55295313949e95b98af04646ec3bb41ffaeeeaf7} & hemphilc & Create sbull.c  \\
-\hline {865a6689b41b3566f9c181cdd5b216d54d400b77} & hemphilc & Delete sbd.c \\
-\hline {bc366c9ea5b40ee707c918f4e1012bdfda80e914} & hemphilc & updated sbull.c \\
-\hline {289855200c27e5c1430b8704c52ba430b4db9fbe} & hemphilc & update sbull.c \\
-\hline {81e960ddb04958e2b3b47418fe122ba34c8c28a3} & hemphilc & Updated and rename sbull.c to brdd.c \\
-\hline {523ae897a4aa8791ca3cd7b755bdaa137cbb722d} & {hemphilc} & updated brdd.c \\
-\hline {e939f88cc8d8b3e3cc97f3cf1d4771cea146f39e} & {hemphilc} & updated brdd.c \\
-\hline {721fca438e9ee3dafc6daa799d81c4e813ae9364} & {hemphilc} & updated brdd.c \\
-\hline {8eaa48bcf404cff9deaf8c77754c456e47ec134c} & {hemphilc} & updated brdd.c \\
-\hline {5fbce707b893dc48422db0c640a8ed59aca0cfd9} & {hemphilc} & updated brdd.c \\
-\hline {3d618a2489e6710956f9e4c02612821b56847532} & {hemphilc} & updated brdd.c \\
-\hline {77bab503252ce1832b5984e7b32fc2cb534b7729} & {hemphilc} & updated brdd.c \\
-\hline {8d46d597bc37f43beedb46fef8e9da618c46584f} & {hemphilc} & updated brdd.c \\
-\hline {e0faaf5bb15f4f80f8bbb3e54c1dab6a988ee9f7} & {yeja94} & updated makefile \\
-\hline {7e473cd2311a4dbc97cacdfd64bda6a6918fd179} & {hemphilc} & updated brdd.c\\
-\hline {d87d81e37bdd1507da64a99b79bbd6321dbfa7c8} & {hemphilc} & updated brdd.c \\
-\hline {e36807cecd466f578a8dcdf2b74e71ec295425fa} & {hemphilc} & updated brdd.c \\
-\hline {88539bc7f7c508efaabe4d84a6af0d9df5b1ff5f} & {hemphilc} & updated brdd.c\\
-\hline {409b78a7f73aa382395ac2671cab8fdfdffbae3f} & {hemphilc} & updated brdd.c \\
-\hline {409b78a7f73aa382395ac2671cab8fdfdffbae3f} & {hemphilc} & updated Create CS444project346.tex \\
-\hline {4dfad87be5996a7d33c07164bffe28f66dc75dfe} & {hemphilc} & Add files via upload \\
-\hline {439a6fb548d82b981bc461314ed6c60a2c4d113b} & {hemphilc} & updated brdd.c \\
-\hline {91fcbb1fdf2b7195ce69d66eceb0fbacd6db83b1} & {hemphilc} & updated brdd.c \\
-\hline {c9cff29b830d4fbffde5eaf9ee4281083ceb7206} & {hemphilc} & updated brdd.c \\
-\hline {32ecfa90fb84359692d03e5d698a76d31545fc82} & {hemphilc} & Delete brdd.ko \\
-\hline {56e925088a5a9c57a4885d46f9c82cddb394b67a} & {hemphilc} & Add files via upload \\
-\hline {fe4f587815414b81eb75e80ce014b4ea025b6a51} & {yeja94} & Modified brdd-request function \\
-\hline {cfa67585cc6cf3e9b8211bc30d8eee9757693acd} & {yeja94} & updated \\
-\hline {d0f11dc50cf6403c6d7a886a1b65cfd1d08d418a} & {yeja94} &Added and modified static int-init brdd-init(void) \\
-\hline {e2007e18df704e891476f961eda7095843c49449} & {yeja94} & updated  \\
-\hline {a0f02d7418f45df908253ced22524d3147010510} & {hemphilc} & updated brdd.c \\
-\hline {750229a7c42e3016f9070f9e6740b28eabc35a5b} & {hemphilc} & updated brdd.c \\
-\hline {3e2822593871da68d46de50dcc5d123ed5a098e2} & {hemphilc} & Delete brdd.ko \\
-\hline {8c9e3bd9451ef85b577abaced5f49d9b36aced74} & {hemphilc} & updated brdd.c \\
-\hline {72b756fc99f075a1c4fe0c250dfaa2c2eb94d6f7} & {hemphilc} & updated brdd.c \\
-\hline {b678208699989305f90b15d259a846ae765c1f96} & {hemphilc} & updated brdd.c \\
-\hline {dee2dbb44fcc5e3bd56967ff0f97c24362df050e} & {hemphilc} & updated brdd.c \\
-\end{tabular}
-\newpage
-\begin{tabular}{l l l}
-\hline {707619eb68753b350ceddd5073d7776abf4a8c92} & {hemphilc} & updated brdd.c \\
-\hline {9a096cc26e69e64b18fd42d0503e51ac93106695} & {hemphilc} & updated brdd.c \\
-\hline {99f713e2da0d8159b39d2ef14b3038bde41dccdf} & {hemphilc} & updated brdd.c \\
-\hline {1faba4e66bf93b4e598c9a588a8c6299badcca74} & {hemphilc} & updated brdd.c \\
-\hline {30a5b980a6e56e10143c6f20c3e71e774b686f4a} & {hemphilc} & updated brdd.c \\
-\hline {54a20a9aae427506019af41934ddcff9c04ab94e} & {hemphilc} & updated brdd.c \\
-\hline {5cf48dfce0bb8a3d3434000a708457234c6232a4} & {hemphilc} & updated brdd.c \\
-\hline {04bb829036ecba8c4f6a94e60a08d15499eb5f97} & {hemphilc} & updated brdd.c \\
-\hline {43c85c5af4eb99100d6fadeb5290dd95ed22efe8} & {hemphilc} & updated brdd.c \\
-\hline {828f30e84a5ef0e64bea56beea01d48e73b62ee6} & {hemphilc} & updated brdd.c \\
-\hline {3cb116abb3ca3d4a192e596c2c6869177a7c8318} & {hemphilc} & updated brdd.c \\
-\hline {f9e408f8d026ff1214a67ac8bc3773c0b8209964} & {hemphilc} & updated brdd.c \\
-\hline {dca0e6b100510834a5653ce83683e37625b944aa} & {hemphilc} & updated brdd.c \\
-\hline {cf25a24d297c63e961c23b58cf43d8cc4a8a9c5c} & {hemphilc} & updated brdd.c \\
-\hline {6c85e7f43f0a35cec40053ab0d5df2226b22d8c2} & {hemphilc} & updated brdd.c \\
-\hline {1fc415060be56a71a798bc9c9074418bbc20fcc9} & {hemphilc} & updated brdd.c \\
-\hline {dda201c6c8d6a0305d98457d5275bb2189c62cc4} & {yeja94} & updated brdd.c \\
-\hline {fac95462a934d795a9d76d97b3dae03306b98374} & {yeja94} & updated brdd.c \\
+\hline {6d1ed42e513ce6ba58bc6d691a910293f4e9bde0} & hemphilc & Add files via upload  \\
+\hline {107bab1b4ee404c32466993c380f55b31c7ff786} & hemphilc & Add files via upload  \\
+\hline {d4e5ee819399c91951304f0c51c166c819e7ee14} & hemphilc & Added assignment head comments  \\
+\hline {300a9ec2984cac704abf87241400f8e49c004e94} & hemphilc & Update slob.c   \\
+\hline {0dcfc037c04daf2d3def90dbea666857f062c6fa} & hemphilc & Update slob.c  \\
+\hline {5bd19d49dea7012fff235ce683287de648818a4a} & hemphilc & Update slob.c \\
+\hline {45e6dbfce60140b95d9d4cfecefef130ed469c58} & hemphilc & Update slob.c  \\
+\hline {c0cbbc6006f29914993a4397e84bbc1f2c735918} & hemphilc & Update slob.c  \\
+\hline {ccc90e1b9dc18c5e6f466f1bd592bdfcf2529af6} & {hemphilc} & Update slob.c  \\
+\hline {eb6169bf50a7194f06547a932b546b44c97afa1a} & {hemphilc} & Update slob.c  \\
+\hline {b2afc97c26d6f8b09ae5b6b96065fa020bb45904} & {hemphilc} & Update slob.c  \\
+\hline {3b1acfb3dde89b41641dcfa81f362463c174bd38} & {hemphilc} & Update slob.c  \\
+\hline {7f8cb34bd5065fd48b764127e48a1c629353bd2f} & {hemphilc} & Update slob.c  \\
+\hline {b516e5dd0e7f2674bc13b3d84ed9b584b21e1624} & {hemphilc} & Create fragtest.c \\
+\hline {68a10ee1d270f8cdcd717ba361717ec334aad2d7} & {hemphilc} & Rename CS444project4-46/fragtest.c to CS444project4-46/FragTest/f \\
+\hline {784166c5ea6d8929063eddc9b924c0684025bcec} & {hemphilc} & Add files via upload \\
+\hline {650c368fe33b7f3f3c1f33766525fbc0fc0f9a15} & {hemphilc} & Update fragtest.c \\
+\hline {d8d7b1d83f54a391b5797986041a18f34d559874} & {hemphilc} & Update fragtest.c \\
+\hline {8fbafa25367c7594b52cbd163ef191607dda8be4} & {hemphilc} & Update fragtest.c\\
+\hline {546a79c5095c35fb4b14474a848f7f168dc59df7} & {hemphilc} & Update fragtest.c\\
+\hline {844407ea36b3eae9792c4e39ec98ae2e6f15815c} & {hemphilc} & Update fragtest.c \\
+\hline {e4a2951e5825ab51a5b67e92901d3458e477a634} & {hemphilc} & Update fragtest.c \\
+\hline {b89d33c37c0614a609ccdfd0aedd56e53ca50a6f} & {hemphilc} & Update fragtest.c \\
+\hline {991378e6cf9b1cf483b78b985a2f2bce489f76d4} & {hemphilc} & Update fragtest.c \\
+\hline {2a699ee72605bed4db9c46d00b3d53e4942df074} & {hemphilc} & Update CS444project4-46.tex \\
+\hline {4f40c3fa135e0020eebf0bf16ddc96769b204bd0} & {hemphilc} & Update fragtest.c  \\
 
 \end{tabular}
 \newpage
