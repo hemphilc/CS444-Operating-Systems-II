@@ -62,7 +62,7 @@
         
         \begin{abstract}
         % 6. Fill in your abstract 
-        This project report is a summary of Homework 4 for Operating Systems II at Oregon State University, Fall 2017. This document includes the approach we used to implement a encrypted block device, a version control log for homework files, a comprehensive team member work log/history, and a report that addresses what we think the main point of this assignment was, how we approached the problem, design decisions relating to our algorithm, how we ensured our solution was correct including testing details, and what we learned from the assignment.
+        This project report is a summary of Homework 4 for Operating Systems II at Oregon State University, Fall 2017. This document includes the approach we used to implement a encrypted block device, a version control log for homework files, a comprehensive team member work log/history, and a report that addresses what we think the main point of this assignment was, how we approached the problem, design decisions relating to our algorithm, how we ensured our solution was correct including testing details, what we learned from the assignment, and how the TA should test our patch.
         \end{abstract} 
         
     \end{singlespace}
@@ -74,26 +74,69 @@
 %\listoffigures
 %\listoftables
 \clearpage
+\section{Question Responses}
+\subsection{What do you think the main point of this assignment is?}
+\noindent The main point of this assignment was to compare the fragmentation ratios of two different memory management algorithms, in this case, the first-fit and best-fit algorithms within the slob.c kernel file. In a lot of cases, there are many solutions to a given problem, but these solutions often have their own trade-offs. In this instance, we observed that the best-fit algorithm actually had better fragmentation ratios than that of the first-fit algorithm. The best-fit algorithm attempts to minimize wasted space by taking extra time to find a better sized fit for allocation. The first-fit algorithm is more efficient in that it is faster, however, it always allocates the next available block rather than worrying about fit, therefore is more prone to wasting space and fragmentation. The secondary point of this assignment was to implement and use system calls to retrieve live data for testing purposes.We got to practice on writing system calls inside the kernel.
 
-% 8. now you write!
-\section{Design Plan}
-\noindent
-\\
+\subsubsection{best-fit Test Output}
+\noindent************ TEST 1 ************\\
+Fragmentation: 0.079371\\
+Free Memory: 415636\\
+Total Memory: 5228544\\
 
-\section{Answer to Each Question }
-\subsection{What do you think the main point of this assignment is}
-\noindent The main point of this assignment is to learn about SLOB algorithm. We approached the idea of SLOB implementation and tried to understand slob allocator, heaps, and blocks. Also, this assignment allow us to understand paging system within the Linux kernel. We got to practice on writing system calls inside the kernel. \\
+\noindent************ TEST 2 ************\\
+Fragmentation: 0.079494\\
+Free Memory: 415636\\
+Total Memory: 5228544\\
+
+\noindent************ TEST 3 ************\\
+Fragmentation: 0.079494\\
+Free Memory: 415570\\
+Total Memory: 5228544\\
+
+\subsubsection{first-fit Test Output}
+\noindent************ TEST 1 ************\\
+Fragmentation: 0.087984\\
+Free Memory: 459696\\
+Total Memory: 5218304\\
+
+\noindent************ TEST 2 ************\\
+Fragmentation: 0.088093\\
+Free Memory: 459696\\
+Total Memory: 5218304\\
+
+\noindent************ TEST 3 ************\\
+Fragmentation: 0.088093\\
+Free Memory: 461802\\
+Total Memory: 5218304\\
+
 
 \subsection{How did you personally approach the problem? Design decisions, algorithm, etc.}
-\noindent We took a look at slob.c provided in the mm directory, and read over the lectures on the topic. We simply took the program and modified it. Before implementation, we inspected the program to see how the first-fit and best-fit algorithm worked. \\
+\noindent We approached the problem by analyzing the kernel's slob.c implementation and tried to gain a working understanding of the SLOB allocator. We copied the original slob\_page\_alloc function and created simple logic for switching to and from both first-fit and best-fit algorithms. We tweaked the existing logic to implement the best-fit algorithm, which has to be over all allocated pages, not just the current page.We added logic to the SLOB algorithm to search for the best fitting bin to allocate, rather than the first bin available.
 
 \subsection{How did you ensure your solution was correct? Testing details, for instance.}
-\noindent For testing, we have added system calls for testing the best-fit algorithm implementation in slob.c. We created a test program that allocate memory into buffers prints fragmentation and claimed/free memory.    
-\\
+\noindent For testing, we have added system call functions within the slob.c that returned both free and total memory values for testing the best-fit algorithm implementation in slob.c. System call declarations also had to be added to three other files---unistd\_32.h, syscall\_32.tbl, and syscalls.h. We created a test program that monitors memory allocation and outputs fragmentation test data to the console. We observed that our solution was correct by comparing the ratios of the two fitting algorithms, and as predicted, the best-fit algorithm was able to decrease fragmentation ratios. To test both algorithms, we would change the value of a constant (1 for best-fit, 0 for first-fit) in order to control which algorithm we wanted to test, and then we would recompile the kernel and run our test program on the virtual machine.\\
 
 \subsection{What did you learn?}
-\noindent For this assignment we gained experience working with system call within the kernel as well as finding fragmentation of the pages.  
-\\
+\noindent For this assignment we gained experience working with system calls within the kernel, as well as how to approach testing and comparing inherent attributes of algorithms to determine trade-offs. We also learned how to determine memory fragmentation.\\
+\subsection{How should the TA test your patch?}
+\noindent The TA should install the patch by navigating to the linux-yocto-3.19/mm directory, copy slob.patch into the directory, and then run the following command:\\
+
+\noindent slob.patch -p1 $<$ ../linux-yocto-3.19 \\
+
+\noindent Once the patch is installed, run the virtual machine from where the linux root folder lives with the following:\\
+
+\noindent qemu-system-i386 -redir tcp:5546::22 -nographic -kernel linux-yocto-3.19/arch/x86/boot/bzImage -drive file=core-image-lsb-sdk-qemux86.ext4 -enable-kvm -usb -localtime --no-reboot --append "root=/dev/hda rwconsole=ttyS0 debug"\\
+
+\noindent Once the vm is running, scp the frag\_test.c file into the vm root folder with the following command:\\
+
+\noindent scp -P 5546 frag\_test.c root@localhost:\char`\~ \\
+
+\noindent Make the frag\_test.c file:\\
+
+\noindent gcc -std=c99 frag\_test.c -o frag\_test\\
+
+\noindent Observe the output. Compare as needed.\\
 
 \section{Version Control Log}
 
@@ -126,6 +169,18 @@
 \hline {991378e6cf9b1cf483b78b985a2f2bce489f76d4} & {hemphilc} & Update fragtest.c \\
 \hline {2a699ee72605bed4db9c46d00b3d53e4942df074} & {hemphilc} & Update CS444project4-46.tex \\
 \hline {4f40c3fa135e0020eebf0bf16ddc96769b204bd0} & {hemphilc} & Update fragtest.c  \\
+\hline {5190687f10bd5bb6dfc59c7cf4c0195c19ff0bfa} & {yeja94} & Updated Laxtex \\
+\hline {69f4f8f0c3c851af1a6e6beb6afbecca244ab0cb} & {hemphilc} & Update fragtest.c  \\
+\hline {5ecae2175cc7db34497bcf39d219267650a0a1b6} & {hemphilc} & Add files via upload \\
+\hline {2cd8685219aeea7699a02e42283f86a1f1dbb037} & {hemphilc} & Update Update Syscalls  \\
+\hline {a1953fc767b849867fb1b3df16ad2e4cd31b5b9b} & {hemphilc} & Update Fixed syscall list bug  \\
+\hline {ab5bc1fac33bf279dfc8424ea212ebcfbe8971ac} & {hemphilc} & Fine tuning  \\
+\hline {efc0e375e12a8054b1a60a039359ee8064e2ec32} & {hemphilc} & Add file via upload  \\
+\hline {99c22330a753684f779d8de4229f5c5e34e87802} & {hemphilc} & Fixed function defs for patch  \\
+\hline {ea94f22f0210bbcc6b654e04cde3852cca1cc6cc} & {hemphilc} & typo  \\
+\hline {29f152e130774900abb66394647ba7a8762088db} & {hemphilc} & fixed function names  \\
+\hline {fbc826484bf6a77ebc314670c231b413e602cfe8} & {hemphilc} & Update slob.patch  \\
+
 
 \end{tabular}
 \newpage
@@ -133,14 +188,14 @@
 % List out the work by each member. Briefly state the date and description of the work. 
 \begin{itemize}
 
-\item \textit{11/04/2017}\\ Corey created a project 3 folder, sbd.c and started researching on the assignment. \\
-\item \textit{11/05/2017}\\ Jason research on Block Devices. \\
-\item \textit{11/06/2017}\\ Corey created sbull.c and started to prototyping \\ 
-\item \textit{11/07/2017}\\ Corey updated brdd.c \\
-\item \textit{11/11/2017}\\ Jason and Corey started to modify the program and made the makefile. \\
-\item \textit{11/12/2017}\\ Corey updated and debug the program. Also, he created the Latex file for the assignment. \\ 
-\item \textit{11/14/2017}\\ Jason and Corey started to modifying the program to meet the assignment's requirement. We had many issues moving the modules to the VMs \\
-\item \textit{11/15/2017}\\ Jason and Corey continued to fix the program but still had problems with bugs and issues. We changed the base code to use sbd.c implementation and added all of our working code to it. Continued ongoing troubleshooting. \\
+\item \textit{11/25/2017}\\ Corey created a project 4 folder in the repo, moved all of the necessary dependencies, and started on the assignment. \item \textit{11/25/2017}\\ We begin implementing the best-fit algorithm in slob.c. \\
+\item \textit{11/26/2017}\\ Corey continued researching and implementing the best-fit algorithm. We created a testing folder for a test program and output files. 
+\item \textit{11/27/2017}\\ Jason has been working on the last concurrency assignment. \\
+\item \textit{11/27/2017}\\ Jason started to do deep research and testing of the algorithms based on Corey's work. \\ 
+\item \textit{11/29/2017}\\ Corey updated the testing program and all files inside the test folder. \\
+\item \textit{11/30/2017}\\ Jason updated the Latex report for this assignment.
+\item \textit{12/01/2017}\\ Jason ran the test files to verify program. Corey ran a couples of tests and tuned up the program. \\ 
+
 \end{itemize} 
 
 \end{document}
