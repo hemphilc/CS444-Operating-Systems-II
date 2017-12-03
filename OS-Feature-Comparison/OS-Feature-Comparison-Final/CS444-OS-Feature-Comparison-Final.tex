@@ -1,0 +1,166 @@
+\documentclass[onecolumn, draftclsnofoot,10pt, compsoc]{IEEEtran}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage[utf8]{inputenc}
+\usepackage{setspace}
+\usepackage{caption}
+\usepackage[nonumberlist,acronym]{glossaries}
+\usepackage{hyperref}
+\usepackage{nomencl}
+\usepackage{geometry}
+\usepackage{color}
+\usepackage{float}
+
+%\usepackage[justification=centering]{caption}
+
+\graphicspath{ {images/} }
+\geometry{textheight=9.5in, textwidth=7in}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{1.0,1.0,1.0}
+
+\usepackage{listings}
+\lstset{
+         basicstyle=\footnotesize\ttfamily,
+         backgroundcolor=\color{backcolour},
+    	 commentstyle=\color{codegreen},
+    	 keywordstyle=\color{magenta},
+    	 numberstyle=\tiny\color{codegray},
+    	 stringstyle=\color{codepurple},
+         morecomment=[l][\color{magenta}]{\#},
+         numberstyle=\tiny,
+         numbersep=5pt,
+         numbers=left,
+         tabsize=1,                
+         extendedchars=true,      
+         breaklines=true,        
+         showspaces=false,      
+         showtabs=false,       
+         xleftmargin=17pt,
+         framexleftmargin=17pt,
+         framexrightmargin=5pt,
+         framexbottommargin=4pt,
+         showstringspaces=false 
+ }
+
+
+\def \Author{Corey Hemphill}
+\def \Title{Operating System Feature Comparison}
+\def \Subtitle{Final Draft}
+\def \Term{cs444 Fall 2017}
+\def \DueDate{December 6, 2017}
+
+\def \DocType{
+	Operating Systems II
+}
+			
+\newcommand{\NameSigPair}[1]{\par
+\makebox[2.75in][r]{#1} \hfil 	
+\makebox[3.25in]{\makebox[2.25in]{\hrulefill} \hfill
+\makebox[.75in]{\hrulefill}}
+\par\vspace{-12pt} \textit{\tiny\noindent
+\makebox[2.75in]{} \hfil
+\makebox[3.25in]{\makebox[2.25in][r]{Signature} \hfill
+\makebox[.75in][r]{Date}}}}
+
+\begin{document}
+\begin{titlepage}
+    \pagenumbering{gobble}
+    \begin{singlespace}
+        \hfill  
+        \par\vspace{.2in}
+        \centering
+        \scshape{
+            \huge  \DocType \par
+           	\huge \Term \par
+            {\large \DueDate}\par
+            \vspace{.5in}
+            \textbf{\Huge \Title}\par
+            {\large \Subtitle}\par
+            \vspace{.5in}
+           
+            {\large By }\par
+           	\textbf{\Author}\par
+   
+            \vspace{5pt}
+            }
+            \vspace{120pt}
+        
+        \begin{abstract}
+        This document examines, compares, and contrasts attributes of a number of low-level operating system kernel features such as processes, threads, CPU scheduling, block and character IO, memory management, and file systems. The following sections of this document discuss several similarities and differences between features of Windows and FreeBSD operating system kernels, and also compare these features with those of the Linux operating system kernel. The purpose of this document is to discuss why certain modern-day operating system features are implemented the way they are. For some of these features, similar approaches are used by many operating systems, and for others, implementations can vary widely for a number of different reasons.
+        \end{abstract} 
+        
+    \end{singlespace}
+\end{titlepage}
+\newpage
+\pagenumbering{arabic}
+\tableofcontents
+
+\newpage
+\section{Processes, Threads, and CPU Scheduling}
+
+\subsection{Compare and Contrast OS Processes}
+\noindent What is a process? Although this might seem like a relatively trivial question to answer, it’s not really. Put simply, a process is a program in execution. However, this is not really a sufficient answer, and it requires a bit of technical knowledge to answer the question more completely. In both Windows and FreeBSD kernels, a process is a single instance of a program being executed by the CPU at a given time. A running process includes all of the necessary dependencies and resources such as included source code files, running threads, virtual address space, and system signal calls \cite{MSWindows1PTCS} \cite{FreeBSD2PTCS}. A process maintains file descriptors which manage a number of vital items such as what CPU registers are being used, data stacks, tables for storing other file descriptors, and CPU runtime values. In both Windows and FreeBSD, a process is identified via a PID, or a process identifier, which is just a unique integer value. For the most part, Windows and FreeBSD processes are extremely similar with a few key differences. FreeBSD represents processes by a task struct whereas Windows represents a process via something they refer to as an executive process. Furthermore, both operating systems utilize background processes. In FreeBSD, background processes are referred to as daemons \cite{FreeBSD2PTCS}, whereas in Windows they are referred to as Windows Services \cite{MSWindows1PTCS}.\\
+
+\noindent When comparing Windows and FreeBSD with the Linux kernel, one can see that a process is very similar across the board; it is an instance of a program being executed. Processes can communicate with other processes, create child processes, create threads, etc. There are, however, some very interesting differences between Windows and Linux processes. For example, in Windows, when you stop a parent process, all of the parent’s child processes will continue their execution to completion \cite{Processes}. In Linux, if a parent process is stopped, all child processes are also stopped \cite{Processes}. Why this is the case, I really have no idea. I’ve searched and searched for an answer to no avail. Obviously, there’s some benefit to either of these approaches, and in Unix-like systems, there are ways in which you can obtain behavior similar to that of Windows \cite{ProcessBehavior}. Processes, daemons, and Windows services all maintain similar functionalities and uses. In both Linux and FreeBSD, daemons are background processes which execute imperative system features such as logging \cite{FreeBSD2PTCS} \cite{Linux}. Another difference that stands out between Windows and Linux is that background processes are named differently, and Windows processes also have the ability to manage files that currently live in memory, as well as print operations \cite{MSWindows1PTCS}.\\
+
+\subsection{Compare and Contrast OS Threads}
+\noindent For all intents and purposes, a thread is the most basic unit of an operating system, and they are the unit for which CPU time is allocated during a process’s execution. A process can create multiple threads. A thread is a high-level abstraction that provides the ability to execute more than one sequence of code for a given executing program. Threads allow for parallel processing and concurrency. FreeBSD and Windows operating systems implement both user and kernel modes; where every single thread maintains its own stack and counter when running in kernel mode. Switching to user mode resets all of these values that a thread maintains. For FreeBSD, and most Unix-like operating systems, threading follows the POSIX standard (pthreads), whereas Windows follows its own implementation standards (Win32 threads) \cite{MSWindows1PTCS} \cite{FreeBSD2PTCS} \cite{PsCreateSystemThread} \cite{MSWindows3PTCS}. The following code excerpt is from the Windows threading implementation:\\
+
+\begin{figure}[H]
+    \centering
+    \lstinputlisting[language=C]{Win32thread.c}
+    \caption{Windows Thread Implementation}
+    \label{fig:win1}
+\end{figure}
+
+\noindent Both operating systems allow for threads that execute exclusively in kernel space, inaccessible to users in user mode.\\
+
+\noindent In comparison to Linux, threading in FreeBSD and Linux are the same. When comparing Linux pthreads to Windows Win32 threads, there are some inherent differences, however, they are extremely similar in the way that programmers can use them; almost identical, in fact. In terms of the API and thread interface, pthreads and Win32 threads are almost exactly the same. There are some key differences in the way threads are implemented between the kernels, though. And, furthermore, what goes on “under the hood”, so to speak, is very different between these kernels. FreeBSD and Linux threads are capable of sharing resources between other executing processes and threads. Windows systems are required to have at least one thread in execution at a given time to be processed by the I/O scheduler. A process in Windows absolutely must have at least one thread in order to execute \cite{MSWindows1PTCS}. Why this is the case is hard to say. It is my opinion that, generally speaking, the Windows kernel is more strict in terms of what it allows a programmer to do with the system’s resources. In other words, it seems that Linux provides programmers with greater power and greater responsibility. To me, this makes sense because Linux kernels are open-source, and Windows kernels are not. This seems like a silly reason, but I’m not exactly able to go dig around in the Windows kernel and modify it, etc. In Linux, I am free to do so. I think a lot of the differences between Linux and Windows threading comes down to freedom and the ability to use a given system’s resources freely.\\
+
+\subsection{Compare and Contrast OS CPU Scheduling}
+\noindent The I/O scheduler is an extremely vital subsystem for any operating system. The primary function of an I/O scheduler is to manage the amount of time a given thread or resource is allowed to execute on the system CPU at a given time. It should be noted that there are a number of different I/O scheduling algorithm implementations that exist. One scheduler that FreeBSD utilizes is the ULE scheduler which retrieves threads and processes by their priority and schedules their execution on the CPU by that given priority \cite{FreeBSD1PTCS}. Windows, on the other hand, implements its own I/O scheduler which determines a given tasks priority, ranks it against other tasks in the queue, and reassigns priority based on other task’s rankings.\\
+
+\noindent In comparison to Linux, there are a large number of differences between the I/O schedulers of Windows and FreeBSD (probably too many to cover here). The primary difference is that Linux’s default I/O scheduler, CFS (completely fair scheduler), focuses on a fair sharing of resources between threads and processes \cite{Linux}. FreeBSD schedules by an assigned priority, and Windows schedules based on arbitrary rankings of priority between processes and threads \cite{MSWindows1PTCS} \cite{FreeBSD1PTCS}. Again, I find it difficult to speculate why this is the case. 
+
+\subsection{Section Conclusion}
+If time is the concern, then I believe that Windows would have the faster scheduling algorithm since it simply always grabs the highest priority task first. If fairness is the concern, then Linux CFS is the most fair in terms of sharing resources. In Windows, one cannot change the I/O scheduler to behave the way they want it to. In Linux, one can. Why this matters, I don’t know. I think most of it, again, comes down to freedom, and the idea behind most concepts in Windows seems to be to limit that freedom. In this case, Windows decides what tasks are more important and prioritizes giving them CPU time. That way, a programmer cannot force his program to be the highest priority. In Linux, this is quite the opposite. Freedom.\\
+
+\section{Block and Character IO}
+
+\section{Compare and Contrast OS Block IO}
+
+\section{Compare and Contrast OS Character IO}
+
+\section{Memory Management}
+
+\subsection{Compare and Contrast FreeBSD and Linux Memory Management}
+\noindent In the FreeBSD virtual memory system, every process is given its own private, protected 32 or 64-bit address space–--depending on the CPU’s architecture. Address spaces cannot be accessed by other processes, and are divided into three segments: text, data, and stack. When a process begins, it is mapped into the system’s virtual address space. A process may begin execution even if part of the process’s data is not present in the system’s main memory; if not present, the system will page the necessary data into memory so that the process can access it. A process can map a file to anywhere in its address space, and can create a shared mapping of a file which can be accessed by other running processes. Shared mapping allows the system to minimize on RAM usage. When system memory becomes scarce, FreeBSD uses swapping and demand paging in an effort to continue running processes. Demand paging is where the system only retrieves pages from disk and places them in RAM when it’s necessary. FreeBSD will also take unused resources from other processes if they have not been recently used and attempt to redistribute those resources to processes that need them. Furthermore, the system may begin swapping a given process’s context to a secondary storage place, usually a hard disk. Memory management in FreeBSD is geared toward multi-process context switching, where there are a large number of running processes and limited resources, and fairly sharing these resources amongst processes \cite{FreeBSD1Mem} \cite{FreeBSD2Mem}.\\
+
+\noindent In comparison, Linux and FreeBSD are extremely similar in terms of memory management, which makes sense because they are both, at their core, UNIX based operating systems. Linux systems support both 32 and 64-bit address spaces, and they also utilize a virtual memory system that provides a protected address space to processes, as well as paging, swapping, and shared virtual memory. Again, this makes a lot of sense, and if the method isn’t broken, why fix it? Since RAM is expensive and a normal hard disk isn’t, memory must be managed in a clever manner by the operating system to achieve an optimal pace. There are a few small differences between Linux and FreeBSD memory management. One such difference in FreeBSD is the system will reallocate unused resources to higher priority processes, whereas Linux relies on demand paging and swapping alone \cite{Linux1Mem} \cite{Linux}.\\
+
+\subsection{Compare and Contrast Windows and Linux Memory Management}
+\noindent In the Windows virtual memory system, every process is given its own private, protected 32 or 64-bit address space–--depending on the CPU’s architecture. Processes in Windows are provided 4 GB of private virtual address space. When a process begins, it is mapped into the system’s virtual address space. A process may begin execution even if part of the process’s data is not present in the system’s main memory; if not present, the system will page the necessary data into memory so that the process can access it. A process can map a file to anywhere in its address space, and can create a shared mapping of a file which can be accessed by other running processes. Is this all sounding familiar? That’s because, conceptually, almost everything that’s true for memory management in FreeBSD is also true for Windows, with very few exceptions. Windows utilizes a method called “prefetching,” in which files from the hard disk are retrieved and placed into physical memory before they are actually needed by the kernel. Windows also uses a method called “lazy allocation,” in which memory will not be allocated until is it absolutely necessary. When system memory becomes scarce, Windows will begin copying out 4 KB address space pieces from RAM, and move them to the hard disk into the Pagefile.sys file. Pagefiles live in the root of a given partition and the size of a pagefile can be configured by the user. Furthermore, a pagefile can store larger pages that don’t fit into physical memory. Unlike FreeBSD, Windows will not take unused resources from idle processes. Windows systems will also use swapping when RAM is too full. Memory management in Windows, similar to FreeBSD, is designed for multi-process context switching, where there are a large number of running processes and limited resources, as well as sharing its limited resources equally amongst all running processes \cite{MSWindows1Mem} \cite{MSWindows2Mem}.\\
+
+For the most part, it appears that Windows and Linux have more similarities than differences when it comes to how they both approach memory management–--which is actually not very surprising for some reason. Virtual memory management, paging, use of swap memory, shared virtual memory; it’s all the same in concept. The details regarding how these concepts are implemented under the hood, so to speak, may be different, but the ideas behind the “how” and the “why” are essentially the same. Which of these operating systems is faster or more efficient in their memory management is arguable. The best answer to that question is, “it depends on what you’re trying to do.” \cite{Linux1Mem} \cite{Linux}.\\
+
+\section{Section Conclusion}
+\noindent The underlying theme of it all seems to be that RAM is a lot more expensive than a mechanical hard drive, so system memory management has to be economical by design. Most modern operating systems’ memory management is predicated on the assumption that most computers will have more hard disk space immediately available than they will RAM at any given time; this seems to be a pretty solid assumption, at least for now. The core idea behind virtual address spaces, shared virtual memory, paging, and swapping is to make data available to the processor as quickly as possible. Since RAM is very expensive, and a hard disk drive is vastly cheaper, there is usually far more hard disk to work with than there is RAM space. Therefore, memory must be managed in a clever manner by the operating system in order to make up for this disparity in the availability of these resources. These very slightly varied management schemes are far from perfect, but it is interesting to see that, for the most part, Windows, FreeBSD, and Linux are in general agreement on how to approach the management of memory resources. One day this may change, though.\\
+
+\section{File Systems}
+
+\subsection{Compare and Contrast FreeBSD and Linux File Systems}
+\noindent
+
+\subsection{Compare and Contrast Windows and Linux File Systems}
+\noindent
+
+\section{Section Conclusion}
+\noindent
+
+\newpage
+\bibliographystyle{IEEEtran}
+\bibliography{CS444-Operating-System-Feature-Comparison}
+\end{document}
