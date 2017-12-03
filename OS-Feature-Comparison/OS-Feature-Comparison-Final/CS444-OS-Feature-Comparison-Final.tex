@@ -123,17 +123,21 @@
 \subsection{Compare and Contrast OS CPU Scheduling}
 \noindent The I/O scheduler is an extremely vital subsystem for any operating system. The primary function of an I/O scheduler is to manage the amount of time a given thread or resource is allowed to execute on the system CPU at a given time. It should be noted that there are a number of different I/O scheduling algorithm implementations that exist. One scheduler that FreeBSD utilizes is the ULE scheduler which retrieves threads and processes by their priority and schedules their execution on the CPU by that given priority \cite{FreeBSD1PTCS}. Windows, on the other hand, implements its own I/O scheduler which determines a given tasks priority, ranks it against other tasks in the queue, and reassigns priority based on other task’s rankings.\\
 
-\noindent In comparison to Linux, there are a large number of differences between the I/O schedulers of Windows and FreeBSD (probably too many to cover here). The primary difference is that Linux’s default I/O scheduler, CFS (completely fair scheduler), focuses on a fair sharing of resources between threads and processes \cite{Linux}. FreeBSD schedules by an assigned priority, and Windows schedules based on arbitrary rankings of priority between processes and threads \cite{MSWindows1PTCS} \cite{FreeBSD1PTCS}. Again, I find it difficult to speculate why this is the case. 
+\noindent In comparison to Linux, there are a large number of differences between the I/O schedulers of Windows and FreeBSD (probably too many to cover here). The primary difference is that Linux’s default I/O scheduler, CFS (completely fair scheduler), focuses on a fair sharing of resources between threads and processes \cite{Linux}. FreeBSD schedules by an assigned priority, and Windows schedules based on arbitrary rankings of priority between processes and threads \cite{MSWindows1PTCS} \cite{FreeBSD1PTCS}. Again, I find it difficult to speculate why this is the case.\\
 
 \subsection{Section Conclusion}
 If time is the concern, then I believe that Windows would have the faster scheduling algorithm since it simply always grabs the highest priority task first. If fairness is the concern, then Linux CFS is the most fair in terms of sharing resources. In Windows, one cannot change the I/O scheduler to behave the way they want it to. In Linux, one can. Why this matters, I don’t know. I think most of it, again, comes down to freedom, and the idea behind most concepts in Windows seems to be to limit that freedom. In this case, Windows decides what tasks are more important and prioritizes giving them CPU time. That way, a programmer cannot force his program to be the highest priority. In Linux, this is quite the opposite. Freedom.\\
 
+\newpage
 \section{Block and Character IO}
 
-\section{Compare and Contrast OS Block IO}
+\subsection{Compare and Contrast OS Block IO}
 
-\section{Compare and Contrast OS Character IO}
+\subsection{Compare and Contrast OS Character IO}
 
+\subsection{Section Conclusion}
+
+\newpage
 \section{Memory Management}
 
 \subsection{Compare and Contrast FreeBSD and Linux Memory Management}
@@ -146,9 +150,10 @@ If time is the concern, then I believe that Windows would have the faster schedu
 
 For the most part, it appears that Windows and Linux have more similarities than differences when it comes to how they both approach memory management–--which is actually not very surprising for some reason. Virtual memory management, paging, use of swap memory, shared virtual memory; it’s all the same in concept. The details regarding how these concepts are implemented under the hood, so to speak, may be different, but the ideas behind the “how” and the “why” are essentially the same. Which of these operating systems is faster or more efficient in their memory management is arguable. The best answer to that question is, “it depends on what you’re trying to do.” \cite{Linux1Mem} \cite{Linux}.\\
 
-\section{Section Conclusion}
+\subsection{Section Conclusion}
 \noindent The underlying theme of it all seems to be that RAM is a lot more expensive than a mechanical hard drive, so system memory management has to be economical by design. Most modern operating systems’ memory management is predicated on the assumption that most computers will have more hard disk space immediately available than they will RAM at any given time; this seems to be a pretty solid assumption, at least for now. The core idea behind virtual address spaces, shared virtual memory, paging, and swapping is to make data available to the processor as quickly as possible. Since RAM is very expensive, and a hard disk drive is vastly cheaper, there is usually far more hard disk to work with than there is RAM space. Therefore, memory must be managed in a clever manner by the operating system in order to make up for this disparity in the availability of these resources. These very slightly varied management schemes are far from perfect, but it is interesting to see that, for the most part, Windows, FreeBSD, and Linux are in general agreement on how to approach the management of memory resources. One day this may change, though.\\
 
+\newpage
 \section{File Systems}
 
 \subsection{Compare and Contrast FreeBSD and Linux File Systems}
@@ -157,7 +162,7 @@ For the most part, it appears that Windows and Linux have more similarities than
 \subsection{Compare and Contrast Windows and Linux File Systems}
 \noindent
 
-\section{Section Conclusion}
+\subsection{Section Conclusion}
 \noindent
 
 \newpage
