@@ -1,4 +1,5 @@
 \documentclass[onecolumn, draftclsnofoot,10pt, compsoc]{IEEEtran}
+
 \usepackage{graphicx}
 \usepackage{url}
 \usepackage[utf8]{inputenc}
@@ -11,9 +12,6 @@
 \usepackage{color}
 \usepackage{float}
 
-%\usepackage[justification=centering]{caption}
-
-\graphicspath{ {images/} }
 \geometry{textheight=9.5in, textwidth=7in}
 
 \definecolor{codegreen}{rgb}{0,0.6,0}
@@ -50,9 +48,8 @@
 \def \Title{Operating System Feature Comparison}
 \def \Subtitle{Final Draft}
 \def \Term{cs444 Fall 2017}
-\def \DueDate{December 6, 2017}
-
-\def \DocType{
+\def \DueDate{December 7, 2017}
+\def \DocType {
 	Operating Systems II
 }
 			
@@ -80,10 +77,8 @@
             \textbf{\Huge \Title}\par
             {\large \Subtitle}\par
             \vspace{.5in}
-           
             {\large By }\par
            	\textbf{\Author}\par
-   
             \vspace{5pt}
             }
             \vspace{120pt}
@@ -97,6 +92,10 @@
 \newpage
 \pagenumbering{arabic}
 \tableofcontents
+
+\newpage
+\section{Introduction}
+\noindent It easy to pretend that a given operating system kernel performs all of its basic, essential operations via some kind of black magic. The reality is that, to the layman, what goes on inside of an operating system really is magic. To an engineer, however, there is no such thing as magic. In order to make intelligent technical decisions as a professional in the field, it is imperative for software engineers to have at least a fundamental understanding of the differences between kernel implementations in a number of operating systems. Here, we will examine both Windows and FreeBSD kernel processes, threads, CPU scheduling, block and character I/O, memory management, and file systems, and we will compare these to the implementations in the Linux kernel.
 
 \newpage
 \section{Processes, Threads, and CPU Scheduling}
@@ -126,16 +125,30 @@
 \noindent In comparison to Linux, there are a large number of differences between the I/O schedulers of Windows and FreeBSD (probably too many to cover here). The primary difference is that Linux’s default I/O scheduler, CFS (completely fair scheduler), focuses on a fair sharing of resources between threads and processes \cite{Linux}. FreeBSD schedules by an assigned priority, and Windows schedules based on arbitrary rankings of priority between processes and threads \cite{MSWindows1PTCS} \cite{FreeBSD1PTCS}. Again, I find it difficult to speculate why this is the case.\\
 
 \subsection{Section Conclusion}
-If time is the concern, then I believe that Windows would have the faster scheduling algorithm since it simply always grabs the highest priority task first. If fairness is the concern, then Linux CFS is the most fair in terms of sharing resources. In Windows, one cannot change the I/O scheduler to behave the way they want it to. In Linux, one can. Why this matters, I don’t know. I think most of it, again, comes down to freedom, and the idea behind most concepts in Windows seems to be to limit that freedom. In this case, Windows decides what tasks are more important and prioritizes giving them CPU time. That way, a programmer cannot force his program to be the highest priority. In Linux, this is quite the opposite. Freedom.\\
+\noindent If time is the concern, then I believe that Windows would have the faster scheduling algorithm since it simply always grabs the highest priority task first. If fairness is the concern, then Linux CFS is the most fair in terms of sharing resources. In Windows, one cannot change the I/O scheduler to behave the way they want it to. In Linux, one can. Why this matters, I don’t know. I think most of it, again, comes down to freedom, and the idea behind most concepts in Windows seems to be to limit that freedom. In this case, Windows decides what tasks are more important and prioritizes giving them CPU time. That way, a programmer cannot force his program to be the highest priority. In Linux, this is quite the opposite. Freedom.\\
 
 \newpage
-\section{Block and Character IO}
+\section{IO Management}
 
-\subsection{Compare and Contrast OS Block IO}
+\subsection{Compare and Contrast FreeBSD and Linux IO}
+\noindent Modern day operating systems generally have a number of algorithms at their disposal for scheduling IO. In FreeBSD, there are at least three different kinds of IO to schedule; character devices, such as keyboards, block devices such as storage disks, and sockets for both network and inter-process communication. By default, FreeBSD uses the ULE IO scheduler to schedule IO tasks. FreeBSD can also be tuned to run the BSD scheduler as well. The ULE scheduling algorithm was designed to handle IO scheduling on systems that have relatively heavy workloads, such as high-traffic web servers. The ULE algorithm has a constant execution time regardless of the number of threads executing at a given time. Furthermore, the ULE algorithm is comprised of multiple queues, a CPU usage estimator, slice and priority calculators, and load balancing helper algorithms. ULE’s primary objective is performance, however, there are other advantages of its use. Similar to all UNIX-like operating systems, in FreeBSD, almost everything within the OS exists as a file, for which there exists a descriptor that can be used to perform IO operations. A descriptor represents an underlying object that is supported by the operating system’s kernel, and in FreeBSD, that can be a file, a pipe, or a socket. The kernel keeps track of descriptors via a descriptor table. Every valid descriptor in the table contains an offset in bytes from the beginning address of the object. The FreeBSD kernel supports a couple of methods for disk encryption; one such method is the gbde kernel facility which can be utilized to perform 128-bit AES encryption on both character and block devices \cite{FreeBSD1IO} \cite{FreeBSD2IO} \cite{FreeBSD3IO}.\\
 
-\subsection{Compare and Contrast OS Character IO}
+\noindent Not surprisingly, FreeBSD and Linux are fairly similar in regard to IO due to their UNIX ancestry. They do, however, use different IO schedulers by default. As mentioned above, FreeBSD utilizes the ULE scheduler, whereas Linux, by default, utilizes the Completely Fair Scheduler (CFS). CFS utilizes a binary tree process selection, as opposed to ULE which utilizes queues. The CFS’s primary goal is to manage IO resources fairly, providing equal processor time to all processes, rather than performance. Both of these schedulers have valid usages and various trade-offs. Although Linux uses CFS as its default scheduler, it has a number of other schedulers available through tuning such as the Deadline, Anticipatory, and Completely Fair Queuing (CFQ) schedulers. While their IO schedulers differ, in terms of descriptors, Linux and FreeBSD are extremely similar. For all intents and purposes, they are essentially the same in that aspect. This seems to be another case of “if it isn’t broken, don’t fix it.” In regard to cryptography, Linux has the kernel crypto API which supports AES, SHA1, and several other encryption ciphers and templates. Although poorly documented, Linux’s crypto encryption functionality dwarfs that of FreeBSD’s \cite{Linux1IO} \cite{Linux2IO}.\\
+
+\begin{figure}[H]
+    \centering
+    \lstinputlisting[language=C]{crypto_io_ex.c}
+    \caption{Crypto IO Example}
+    \label{fig:crypto_io_ex}
+\end{figure}
+
+\subsection{Compare and Contrast Windows and Linux IO}
+\noindent In Windows operating systems, the IO manager provides the interface to a given system’s kernel-mode drivers. In other words, the IO manager manages the communication and interaction between the system’s device drivers and user applications. The communication between the IO manager and the kernel’s drivers is handled via IO request packets (IRPs). The Windows IO model provides what is called a “layered” driver model, in which these driver layers lie one above the other to create “stacks”. The idea is that at the bottom of the stack, you have the PCI bus driver, then the next layer up is the USB host controller driver, then the USB hub driver, then your IO device driver. The Windows IO system provides communication between the drivers in a stack by enabling the passing of the IRPs. The Windows IO system also supports both synchronous and asynchronous IO. In synchronous IO, a thread will initiate an IO operation, then it will wait until the operation completes before moving on to another job. In asynchronous IO, a thread may initiate an IO operation, bind that operation to an IO completion port, then continue working on another job until the kernel sends a signal to the waiting port letting the thread know that operation has finished. There are some pretty obvious advantages to allowing asynchronous calling of IO operations; one advantage being that it is more efficient when used for operations that are anticipated to require a relatively large amount of time to complete, allowing the thread to continue execution without wasting time waiting for completion \cite{MSWindows1IO} \cite{MSWindows2IO} \cite{MSWindows3IO} \cite{MSWindows4IO}.\\
+
+\noindent There are a number of notable differences between the Windows and Linux IO systems. Windows utilizes IO manager to handle IO and passes IRPs within driver stacks for communication, whereas Linux uses CFS and descriptors for files, pipes, and sockets. These are completely different approaches to handling IO, and its arguable which is “better.” It all depends on which religion you subscribe to, so to speak. Linux has a number of different schedulers that a user can utilize, whereas Windows offers no alternative. This is likely due to the fact that Windows is proprietary, and Linux is open-source. Lastly, both Windows and Linux offer asynchronous calling of IO operations, as most operating system kernels are capable of handling asynchronous IO operations. Although the end result is the same, how this result is achieved behind the scenes is likely vastly different between these two kernels. This tends to be the general theme in the Windows vs Linux rivalry \cite{Linux1IO} \cite{Linux2IO}.\\
 
 \subsection{Section Conclusion}
+\noindent Its refreshing to see some diversity amongst the different IO management systems within the FreeBSD, Windows, and Linux operating system kernels. After a brief examination, it doesn’t seem any of these IO systems is massively superior to any other, it just seems they simply have different purposes and specializations. Its important to be aware of these options, and apply the proper approach to the given scenario. In other words, know your toolset, and use it wisely. IO management is something every computer must do, and it is arguably the most essential function of an operating system’s kernel.
 
 \newpage
 \section{Memory Management}
@@ -148,7 +161,7 @@ If time is the concern, then I believe that Windows would have the faster schedu
 \subsection{Compare and Contrast Windows and Linux Memory Management}
 \noindent In the Windows virtual memory system, every process is given its own private, protected 32 or 64-bit address space–--depending on the CPU’s architecture. Processes in Windows are provided 4 GB of private virtual address space. When a process begins, it is mapped into the system’s virtual address space. A process may begin execution even if part of the process’s data is not present in the system’s main memory; if not present, the system will page the necessary data into memory so that the process can access it. A process can map a file to anywhere in its address space, and can create a shared mapping of a file which can be accessed by other running processes. Is this all sounding familiar? That’s because, conceptually, almost everything that’s true for memory management in FreeBSD is also true for Windows, with very few exceptions. Windows utilizes a method called “prefetching,” in which files from the hard disk are retrieved and placed into physical memory before they are actually needed by the kernel. Windows also uses a method called “lazy allocation,” in which memory will not be allocated until is it absolutely necessary. When system memory becomes scarce, Windows will begin copying out 4 KB address space pieces from RAM, and move them to the hard disk into the Pagefile.sys file. Pagefiles live in the root of a given partition and the size of a pagefile can be configured by the user. Furthermore, a pagefile can store larger pages that don’t fit into physical memory. Unlike FreeBSD, Windows will not take unused resources from idle processes. Windows systems will also use swapping when RAM is too full. Memory management in Windows, similar to FreeBSD, is designed for multi-process context switching, where there are a large number of running processes and limited resources, as well as sharing its limited resources equally amongst all running processes \cite{MSWindows1Mem} \cite{MSWindows2Mem}.\\
 
-For the most part, it appears that Windows and Linux have more similarities than differences when it comes to how they both approach memory management–--which is actually not very surprising for some reason. Virtual memory management, paging, use of swap memory, shared virtual memory; it’s all the same in concept. The details regarding how these concepts are implemented under the hood, so to speak, may be different, but the ideas behind the “how” and the “why” are essentially the same. Which of these operating systems is faster or more efficient in their memory management is arguable. The best answer to that question is, “it depends on what you’re trying to do.” \cite{Linux1Mem} \cite{Linux}.\\
+\noindent For the most part, it appears that Windows and Linux have more similarities than differences when it comes to how they both approach memory management–--which is actually not very surprising for some reason. Virtual memory management, paging, use of swap memory, shared virtual memory; it’s all the same in concept. The details regarding how these concepts are implemented under the hood, so to speak, may be different, but the ideas behind the “how” and the “why” are essentially the same. Which of these operating systems is faster or more efficient in their memory management is arguable. The best answer to that question is, “it depends on what you’re trying to do.” \cite{Linux1Mem} \cite{Linux}.\\
 
 \subsection{Section Conclusion}
 \noindent The underlying theme of it all seems to be that RAM is a lot more expensive than a mechanical hard drive, so system memory management has to be economical by design. Most modern operating systems’ memory management is predicated on the assumption that most computers will have more hard disk space immediately available than they will RAM at any given time; this seems to be a pretty solid assumption, at least for now. The core idea behind virtual address spaces, shared virtual memory, paging, and swapping is to make data available to the processor as quickly as possible. Since RAM is very expensive, and a hard disk drive is vastly cheaper, there is usually far more hard disk to work with than there is RAM space. Therefore, memory must be managed in a clever manner by the operating system in order to make up for this disparity in the availability of these resources. These very slightly varied management schemes are far from perfect, but it is interesting to see that, for the most part, Windows, FreeBSD, and Linux are in general agreement on how to approach the management of memory resources. One day this may change, though.\\
@@ -166,6 +179,11 @@ For the most part, it appears that Windows and Linux have more similarities than
 \noindent
 
 \newpage
+\section{Final Conclusion}
+\noindent Although Windows, FreeBSD, and Linux share a lot in common in terms of their implementation of key functionalities, there are also a lot of differences in how these functionalities operate, as well as the nomenclature that describes how these functionalities are expected and/or designed to behave. The small, nuanced differences may seem insignificant, but often they have large implications when considering which to use in terms of solving a given problem. In terms of processes, all three operating systems maintain more similarities than differences. Same with threads. However, CPU scheduling proved to be where these three operating systems differ most.
+
+\newpage
+\nocite{*}
 \bibliographystyle{IEEEtran}
 \bibliography{CS444-Operating-System-Feature-Comparison}
 \end{document}
