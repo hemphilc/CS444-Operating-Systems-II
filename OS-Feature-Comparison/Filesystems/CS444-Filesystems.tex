@@ -35,7 +35,7 @@
 
 \def \Author{Corey Hemphill}
 \def \Title{Operating System Feature Comparison}
-\def \Subtitle{File Systems}
+\def \Subtitle{Filesystems}
 \def \Term{cs444 Fall 2017}
 \def \DueDate{December 7, 2017}
 
@@ -74,52 +74,49 @@
             \vspace{120pt}
         
         \begin{abstract}
-        This document examines, compares, and contrasts operating system file systems implementations in Windows, FreeBSD, and Linux operating systems.
+        This document examines, compares, and contrasts operating system filesystems implementations in Windows, FreeBSD, and Linux operating systems.
         \end{abstract}
         
     \end{singlespace}
 \end{titlepage}
 \newpage
 
-\section{Compare and Contrast FreeBSD and Linux File Systems}
-\noindent  
+\section{Compare and Contrast FreeBSD and Linux Filesystems}
+\noindent  The FreeBSD operating system kernel supports both UFS and ZFS filesystems. Filesystems are a fundamental component to all modern operating systems, and many operating systems vary in which file system they support by default. Unix File System (UFS), as the same implies, is a file system that is used by many UNIX-like operating systems, and FreeBSD is no exception. A UFS disk volume has a number of key features; at the start of the volume’s partition, there is a reserved space for the system’s boot file blocks, followed by a superblock which contains several different important file system parameters. This disk volume is comprised of a number of cylinder groups which each contain a copy of the aforementioned superblock, nodes, and data blocks. The UFS is also known as the Fast File System (FFS). Given that the FreeBSD kernel is tuned in favor of performance, it makes sense that it uses a file system designed to be fast. The ZFS file system can also be used natively in FreeBSD. ZFS is a unique file system in that it behaves as both the file system and as a system volume manager. The primary perks of ZFS include data integrity, pooled storage, and performance. Its easy to see why these two filesystems work exceptionally well within FreeBSD systems \cite{FreeBSD1FS} \cite{FreeBSD2FS} \cite{FreeBSD3FS}.\\
+
+\noindent Linux and FreeBSD, as expected, utilize similar filesystems. Furthermore, Linux, once again supports a number of different filesystems. In fact, many Linux filesystems
 
 
-\cite{FreeBSD1IO} \cite{FreeBSD2IO} \cite{FreeBSD3IO}.\\
 
+
+
+\cite{Linux1FS} \cite{Linux2FS}.\\
+
+%\begin{figure}[H]
+%    \centering
+%    \lstinputlisting[language=C]{crypto_io_ex.c}
+%    \caption{Crypto IO Example}
+%    \label{fig:crypto_io_ex}
+%\end{figure}
+
+\section{Compare and Contrast Windows and Linux Filesystems}
 \noindent 
 
 
 
 
-
-\cite{Linux1IO} \cite{Linux2IO}.\\
-
-\begin{figure}[H]
-    \centering
-    \lstinputlisting[language=C]{crypto_io_ex.c}
-    \caption{Crypto IO Example}
-    \label{fig:crypto_io_ex}
-\end{figure}
-
-\section{Compare and Contrast Windows and Linux IO}
-\noindent 
-
-
-
-
-\cite{MSWindows1IO} \cite{MSWindows2IO} \cite{MSWindows3IO} \cite{MSWindows4IO}.\\
+\cite{MSWindows1FS} \cite{MSWindows2FS}.\\
 
 \noindent 
 
 
 
-\cite{Linux1IO} \cite{Linux2IO}.\\
+\cite{Linux1FS} \cite{Linux2FS}.\\
 
 \section{Section Conclusion}
 \noindent 
 
 \newpage
 \bibliographystyle{IEEEtran}
-\bibliography{CS444-File-Systems}
+\bibliography{CS444-Filesystems}
 \end{document}
